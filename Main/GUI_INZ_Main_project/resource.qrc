@@ -1,0 +1,17 @@
+<RCC>
+    <qresource prefix="/"/>
+    <qresource prefix="/menubar">
+        <file>res/001-remove.png</file>
+        <file>res/002-plug.png</file>
+        <file>res/003-syncronization.png</file>
+        <file>res/004-tablet.png</file>
+        <file>res/005-mechanical-arm.png</file>
+        <file>res/006-information-button.png</file>
+        <file>res/007-information.png</file>
+        <file>res/008-licensing.png</file>
+        <file>res/video-play-button.png</file>
+    </qresource>
+    <qresource prefix="/Pictures">
+        <file>res/medical.png</file>
+    </qresource>
+</RCC>
