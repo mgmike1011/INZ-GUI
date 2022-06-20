@@ -13,5 +13,6 @@
     </qresource>
     <qresource prefix="/Pictures">
         <file>res/medical.png</file>
+        <file>res/medical_smaller.png</file>
     </qresource>
 </RCC>
