@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>900</width>
+    <width>1186</width>
     <height>702</height>
    </rect>
   </property>
@@ -61,7 +61,7 @@
        <string notr="true"/>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="page1_Start">
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -426,7 +426,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>900</width>
+     <width>1186</width>
      <height>25</height>
     </rect>
    </property>
@@ -444,6 +444,8 @@
     </property>
     <addaction name="connectionActionPage"/>
     <addaction name="separator"/>
+    <addaction name="actionCopy_serial_port_name"/>
+    <addaction name="actionCopy_path_to_Log_file"/>
    </widget>
    <widget class="QMenu" name="menuData">
     <property name="title">
@@ -632,6 +634,16 @@
    </property>
    <property name="toolTip">
     <string>Start page.</string>
+   </property>
+  </action>
+  <action name="actionCopy_serial_port_name">
+   <property name="text">
+    <string>Copy serial port name</string>
+   </property>
+  </action>
+  <action name="actionCopy_path_to_Log_file">
+   <property name="text">
+    <string>Copy path to Log file</string>
    </property>
   </action>
  </widget>

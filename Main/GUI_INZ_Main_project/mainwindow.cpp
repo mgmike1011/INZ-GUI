@@ -14,6 +14,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
     ui->serialPortComboBox->clear();
     for(auto &th:portList){
         ui->serialPortComboBox->addItem(th.portName());
+        ui->portNameLineEdit->setText(th.serialNumber());
     }
 }
 
@@ -86,7 +87,9 @@ void MainWindow::on_savePathLogPushButton_clicked()
 
 }
 
-
+//
+// Refresh button - page 1
+//
 void MainWindow::on_pushButton_2_clicked()
 {
     QSerialPortInfo info;
@@ -94,50 +97,67 @@ void MainWindow::on_pushButton_2_clicked()
     this->m_info = info;
     ui->serialPortComboBox->clear();
     for(auto &th:portList){
-        ui->serialPortComboBox->addItem(th.serialNumber());
+        ui->serialPortComboBox->addItem(th.portName());
+        ui->portNameLineEdit->setText(th.serialNumber());
     }
 }
 
-
+//
+// Aktualizacja nazwy portu przy zmianie wyboru COM
+//
 void MainWindow::on_serialPortComboBox_currentTextChanged(const QString &arg1)
 {
     auto portList = m_info.availablePorts();
     for(auto &th:portList){
         if(th.serialNumber() == arg1){
-            ui->portNameLineEdit->setText(th.portName());
+            ui->portNameLineEdit->setText(th.serialNumber());
         }
     }
 }
 
-
+//
+// Test button - page 1
+//
 void MainWindow::on_pushButton_3_clicked()
 {
     if(! ui->portNameLineEdit->text().isEmpty()){
         statusBar()->showMessage("Testing");
-        QSerialPort port;
-        port.setPortName(ui->portNameLineEdit->text());
-        port.setBaudRate(QSerialPort::Baud115200);
-        port.setDataBits(QSerialPort::Data8);
-        port.setParity(QSerialPort::NoParity);
-        port.setStopBits(QSerialPort::OneStop);
-        port.setFlowControl(QSerialPort::NoFlowControl);
-        port.open(QIODevice::ReadWrite);
-        //    port.flush();
-        port.write("T");
-//        Musi przesłać i odebrać T
-        //    port.flush();
+        QSerialPort *port = new QSerialPort;
+                port->setPortName(ui->serialPortComboBox->currentText());
+        port->setBaudRate(QSerialPort::Baud115200);
+        port->setDataBits(QSerialPort::Data8);
+        port->setParity(QSerialPort::NoParity);
+        port->setStopBits(QSerialPort::OneStop);
+        port->setFlowControl(QSerialPort::NoFlowControl);
+        port->open(QIODevice::ReadWrite);
+
+        port->flush();
+        port->write("T");
+        // Musi przesłać i odebrać T
+        port->flush();
         QByteArray buf;
-        buf = port.readAll();
-        //    port.flush();
-        port.close();
+        if(port->waitForReadyRead(1000)){
+            buf = port->readAll();
+        }
+        port->flush();
+        port->close();
         if(buf.toStdString() == "T"){
             ui->testLabel->setText("Test: Success");
+            ui->testLabel->setStyleSheet("QLabel { color : green; }");
         }else{
             ui->testLabel->setText("Test: Error");
+            ui->testLabel->setStyleSheet("QLabel { color : red; }");
         }
         statusBar()->showMessage("Connection Page");
+        delete port;
     }else{
-        QMessageBox::critical(this,"No port selected","To perform a test select a port");
+        QMessageBox::critical(this,"No port selected","To perform a test select a port.");
     }
+}
+
+
+void MainWindow::on_actionCopy_serial_port_name_triggered()
+{
+
 }
 
