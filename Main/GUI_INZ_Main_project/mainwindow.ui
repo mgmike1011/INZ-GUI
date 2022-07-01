@@ -61,7 +61,7 @@
        <string notr="true"/>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="page1_Start">
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -276,6 +276,16 @@
               </spacer>
              </item>
              <item>
+              <widget class="QLabel" name="Conncectionstatuslabel">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="text">
+                <string>Status: Disconnected</string>
+               </property>
+              </widget>
+             </item>
+             <item>
               <widget class="QPushButton" name="pushButton_4">
                <property name="cursor">
                 <cursorShape>PointingHandCursor</cursorShape>
@@ -427,7 +437,7 @@
      <x>0</x>
      <y>0</y>
      <width>1186</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

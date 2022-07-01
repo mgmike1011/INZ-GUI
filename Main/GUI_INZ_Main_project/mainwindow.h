@@ -10,7 +10,9 @@
 #include <QSerialPortInfo>
 #include <QSerialPort>
 #include <algorithm>
-#include "mcucommunication.h"
+#include <QThread>
+#include <mcucommunication.h>
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -30,12 +32,13 @@ private slots:
     void on_actionAbout_Qt_triggered();
     void on_savePathLogPushButton_clicked();
     void on_pushButton_2_clicked();
-
     void on_serialPortComboBox_currentTextChanged(const QString &arg1);
-
     void on_pushButton_3_clicked();
-
     void on_actionCopy_serial_port_name_triggered();
+    void on_pushButton_4_clicked();
+    // Communication with MCU
+    void messageReceived_slot(const QString &message);
+    void on_actionCopy_path_to_Log_file_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -43,5 +46,6 @@ private:
     LOGSystem *m_LOGSystem;
     bool m_isConnected, m_isPathChosen;
     QSerialPortInfo m_info;
+    MCUCommunication *m_mcuCommunication;
 };
 #endif // MAINWINDOW_H
