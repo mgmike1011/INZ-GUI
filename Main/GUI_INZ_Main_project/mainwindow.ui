@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1186</width>
-    <height>702</height>
+    <width>1004</width>
+    <height>638</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -61,7 +61,7 @@
        <string notr="true"/>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="page1_Start">
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -160,7 +160,7 @@
               </font>
              </property>
              <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the serial port to which the device is connected, perform a connection test if necessary, and then connect the program with the device. &lt;/p&gt;&lt;p&gt;Transmission parameters: 115200 baud, parity - none, 8 data bits.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the serial port to which the device is connected, perform a connection test if necessary, and then connect the program with the device. &lt;/p&gt;&lt;p align=&quot;center&quot;&gt;Transmission parameters: 115200 baud, parity - none, 8 data bits.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
             </widget>
            </item>
@@ -427,6 +427,7 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="page_3_Data"/>
      </widget>
     </item>
    </layout>
@@ -436,7 +437,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1186</width>
+     <width>1004</width>
      <height>21</height>
     </rect>
    </property>

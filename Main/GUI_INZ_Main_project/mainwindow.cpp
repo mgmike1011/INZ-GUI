@@ -26,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
 MainWindow::~MainWindow()
 {
     delete ui;
+    this->m_mcuCommunication->stopWork();
 }
 //
 // Wywołanie strony początkowej nr 0
@@ -241,6 +242,7 @@ void MainWindow::on_pushButton_4_clicked()
 //
 void MainWindow::messageReceived_slot(const QString &message)
 {
+    // TODO: implement !!!
     qInfo() << message;
 }
 //
@@ -255,5 +257,13 @@ void MainWindow::on_actionCopy_path_to_Log_file_triggered()
         ui->saveFileLogLineEdit->copy();
         ui->saveFileLogLineEdit->deselect();
     }
+}
+//
+// Licenses dialog
+//
+void MainWindow::on_actionLicenses_triggered()
+{
+    this->m_licensesDialog = new licensesDialog(this);
+    this->m_licensesDialog->show();
 }
 

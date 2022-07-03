@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <QThread>
 #include <mcucommunication.h>
+#include "licensesdialog.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -40,6 +41,8 @@ private slots:
     void messageReceived_slot(const QString &message);
     void on_actionCopy_path_to_Log_file_triggered();
 
+    void on_actionLicenses_triggered();
+
 private:
     Ui::MainWindow *ui;
     QString m_PathLOGFile;
@@ -47,5 +50,6 @@ private:
     bool m_isConnected, m_isPathChosen;
     QSerialPortInfo m_info;
     MCUCommunication *m_mcuCommunication;
+    licensesDialog *m_licensesDialog;
 };
 #endif // MAINWINDOW_H

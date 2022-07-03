@@ -25,6 +25,9 @@ set(PROJECT_SOURCES
         logsystem.cpp
         mcucommunication.h
         mcucommunication.cpp
+        licensesdialog.h
+        licensesdialog.cpp
+        licensesdialog.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
