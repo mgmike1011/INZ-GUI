@@ -266,4 +266,19 @@ void MainWindow::on_actionLicenses_triggered()
     this->m_licensesDialog = new licensesDialog(this);
     this->m_licensesDialog->show();
 }
+//
+// Załączenie strony Data
+//
+void MainWindow::on_dataPushButton_clicked()
+{
+    ui->mainStackedWidget->setCurrentIndex(2);
+    statusBar()->showMessage("Live data page");
+}
+//
+// Załączenie strony Connection
+//
+void MainWindow::on_connectionPushButton_clicked()
+{
+    ui->mainStackedWidget->setCurrentIndex(1);
+}
 

@@ -43,6 +43,10 @@ private slots:
 
     void on_actionLicenses_triggered();
 
+    void on_dataPushButton_clicked();
+
+    void on_connectionPushButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     QString m_PathLOGFile;
