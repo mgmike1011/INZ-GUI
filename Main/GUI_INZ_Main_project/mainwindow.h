@@ -47,6 +47,8 @@ private slots:
 
     void on_connectionPushButton_clicked();
 
+    void on_DataActionPage_triggered();
+
 private:
     Ui::MainWindow *ui;
     QString m_PathLOGFile;

@@ -93,8 +93,12 @@ void MainWindow::on_savePathLogPushButton_clicked()
         ui->dataPushButton->setEnabled(true);
     }else if(this->m_isPathChosen && !this->m_isConnected){
         ui->statusToDolabel->setText("Connect to the MCU.");
+        ui->DataActionPage->setEnabled(false);
+        ui->dataPushButton->setEnabled(false);
     }else if(! this->m_isPathChosen && this->m_isConnected){
         ui->statusToDolabel->setText("Select the path.");
+        ui->DataActionPage->setEnabled(false);
+        ui->dataPushButton->setEnabled(false);
     }
 
 }
@@ -229,11 +233,17 @@ void MainWindow::on_pushButton_4_clicked()
             ui->dataPushButton->setEnabled(true);
         }else if(this->m_isPathChosen && !this->m_isConnected){
             ui->statusToDolabel->setText("Connect to the MCU.");
-            this->m_LOGSystem->writeLOG("-","-","-","-","Disconnected to the MCU");
+            ui->DataActionPage->setEnabled(false);
+            ui->dataPushButton->setEnabled(false);
+            this->m_LOGSystem->writeLOG("-","-","-","-","Disconnected from the MCU");
         }else if(! this->m_isPathChosen && this->m_isConnected){
             ui->statusToDolabel->setText("Select the path.");
+            ui->DataActionPage->setEnabled(false);
+            ui->dataPushButton->setEnabled(false);
         }else{
             ui->statusToDolabel->setText("Select the path and connect to the MCU.");
+            ui->DataActionPage->setEnabled(false);
+            ui->dataPushButton->setEnabled(false);
         }
     }
 }
@@ -244,6 +254,7 @@ void MainWindow::messageReceived_slot(const QString &message)
 {
     // TODO: implement !!!
     qInfo() << message;
+    // Aktualizacja danych dla ekranu Data -> index 2
 }
 //
 // Obsługa kopiowania sciezki log
@@ -275,10 +286,19 @@ void MainWindow::on_dataPushButton_clicked()
     statusBar()->showMessage("Live data page");
 }
 //
-// Załączenie strony Connection
+// Załączenie strony Connection z przycisku na stronie Data
 //
 void MainWindow::on_connectionPushButton_clicked()
 {
     ui->mainStackedWidget->setCurrentIndex(1);
+    statusBar()->showMessage("Connection Page");
+}
+//
+// Załączenie strony Data
+//
+void MainWindow::on_DataActionPage_triggered()
+{
+    ui->mainStackedWidget->setCurrentIndex(2);
+    statusBar()->showMessage("Live data page");
 }
 
