@@ -13,6 +13,7 @@
 #include <QThread>
 #include <mcucommunication.h>
 #include "licensesdialog.h"
+#include <iostream>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -40,22 +41,25 @@ private slots:
     // Communication with MCU
     void messageReceived_slot(const QString &message);
     void on_actionCopy_path_to_Log_file_triggered();
-
     void on_actionLicenses_triggered();
-
     void on_dataPushButton_clicked();
-
     void on_connectionPushButton_clicked();
-
     void on_DataActionPage_triggered();
 
 private:
+    // Main window UI form
     Ui::MainWindow *ui;
+    // Path for saving the log file
     QString m_PathLOGFile;
+    // Log system
     LOGSystem *m_LOGSystem;
+    // Chcecking if the path is chosen and the MCU is connected
     bool m_isConnected, m_isPathChosen;
+    // Serial port communication - port selection
     QSerialPortInfo m_info;
+    // MCU communication system
     MCUCommunication *m_mcuCommunication;
+    // Licenses dialog system
     licensesDialog *m_licensesDialog;
 };
 #endif // MAINWINDOW_H

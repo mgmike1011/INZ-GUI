@@ -1,27 +1,27 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 //
-// Konstruktor
+// Main constructor for whole program
 //
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     statusBar()->showMessage("Welcome - Start Page"); // Informacja na pasku dolnym
-    ui->mainStackedWidget->setCurrentIndex(0); // Ustawienie początkowego ekranu
-    this->m_isPathChosen = false; // Czy wybrany jest zapis do pliku Log
-    this->m_isConnected = false;  // Czy jest połączony
-    QSerialPortInfo info; // Dostępne porty COM
-    this->m_info = info; // Dostępne porty COM
+    ui->mainStackedWidget->setCurrentIndex(0); // Setting the first page
+    this->m_isPathChosen = false; // Is the path chosen for saving the Log file
+    this->m_isConnected = false;  // IS the MCU connected
+    QSerialPortInfo info; // Available COM ports
+    this->m_info = info; // Available COM ports
     auto portList = info.availablePorts();
     ui->serialPortComboBox->clear();
-    for(auto &th:portList){ // Zapisanie dostępnych portów COM do Combo Box ekran 1
+    for(auto &th:portList){ // Saving the available COM ports list to ComboBox screen 1
         ui->serialPortComboBox->addItem(th.portName());
         ui->portNameLineEdit->setText(th.serialNumber());
     }
 
 }
 //
-// Destruktor
+// Main destructor
 //
 MainWindow::~MainWindow()
 {
@@ -29,48 +29,49 @@ MainWindow::~MainWindow()
     this->m_mcuCommunication->stopWork();
 }
 //
-// Wywołanie strony początkowej nr 0
+// Executing the start page - 0
 //
 void MainWindow::on_StartActionPage_triggered()
 {
-    ui->mainStackedWidget->setCurrentIndex(0);
-    statusBar()->showMessage("Start Page");
+    ui->mainStackedWidget->setCurrentIndex(0); // Show start page - 0
+    statusBar()->showMessage("Start Page"); // Status bar message
 }
 //
-// Zamknięcie aplikacji przyciskiem Quit
+// Closing the application with Quit button
 //
 void MainWindow::on_actionQuit_triggered()
 {
-    // Zamknięcie aplikacji
+    // Close the application
     int ret = QMessageBox::question(this, tr("Quit the application"),
                                     tr("Do you want to quit the application?"),
                                     QMessageBox::Ok | QMessageBox::Cancel);
+    // If confirmed then exit
     if(ret == QMessageBox::Ok){
         QApplication::quit();
     }
 }
 //
-// Wywołanie ekranu Connection nr 1
+// Executing the Connection page - 1
 //
 void MainWindow::on_connectionActionPage_triggered()
 {
-    ui->mainStackedWidget->setCurrentIndex(1);
-    statusBar()->showMessage("Connection Page");
+    ui->mainStackedWidget->setCurrentIndex(1); // Show connection page - 1
+    statusBar()->showMessage("Connection Page"); // Status bar message
 }
 //
-// Wywołanie ekranu Connection nr 1 przyciskiem start
+// Executing the Connection page - 1 with Start button
 //
 void MainWindow::on_startPushButton_page_1_Start_clicked()
 {
-    ui->mainStackedWidget->setCurrentIndex(1);
-    statusBar()->showMessage("Connection Page");
+    ui->mainStackedWidget->setCurrentIndex(1); // Show connection page - 1
+    statusBar()->showMessage("Connection Page"); // Status bar message
 }
 //
-// Wywołanie okna About Qt
+// Executing AboutQT dialog
 //
 void MainWindow::on_actionAbout_Qt_triggered()
 {
-    QApplication::aboutQt();
+    QApplication::aboutQt(); // Show dialog
 }
 //
 // Obsługa przycisku Save ekran Connection nr 1
@@ -108,6 +109,7 @@ void MainWindow::on_savePathLogPushButton_clicked()
 //
 void MainWindow::on_pushButton_2_clicked()
 {
+    ui->portNameLineEdit->clear();
     QSerialPortInfo info;
     auto portList = info.availablePorts();
     this->m_info = info;
@@ -148,15 +150,19 @@ void MainWindow::on_pushButton_3_clicked()
         port->open(QIODevice::ReadWrite);
 
         port->flush();
-        port->write("T");
+        port->write("TXXX");
         // Musi przesłać i odebrać T
         port->flush();
         QByteArray buf;
         if(port->waitForReadyRead(10)){
+            port ->flush();
             buf = port->readAll();
         }
         port->flush();
         port->close();
+        //////// TODO
+        qInfo() << buf;
+        /////////////
         if(buf.toStdString() == "T"){
             ui->testLabel->setText("Test: Success");
             ui->testLabel->setStyleSheet("QLabel { color : green; }");
@@ -195,7 +201,8 @@ void MainWindow::on_pushButton_4_clicked()
             connect(m_mcuCommunication,&MCUCommunication::messageReceived,this,&MainWindow::messageReceived_slot);
             this->m_mcuCommunication->start();
             // Przeprowadzenie testu łączności
-            this->m_mcuCommunication->sendMessage("T");
+            this->m_mcuCommunication->sendMessage("OXXX");
+            // TODO implement if connection failed
             this->m_isConnected = true;
             ui->pushButton_3->setEnabled(false);
             ui->serialPortComboBox->setEnabled(false);
@@ -254,6 +261,8 @@ void MainWindow::messageReceived_slot(const QString &message)
 {
     // TODO: implement !!!
     qInfo() << message;
+    //std::cout << message.toStdString();
+    //qInfo() << (message.toStdString().c_str());
     // Aktualizacja danych dla ekranu Data -> index 2
 }
 //

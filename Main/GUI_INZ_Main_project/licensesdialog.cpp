@@ -1,6 +1,8 @@
 #include "licensesdialog.h"
 #include "ui_licensesdialog.h"
-
+//
+// Licenses dialog constructor
+//
 licensesDialog::licensesDialog(QWidget *parent) : QDialog(parent), ui(new Ui::licensesDialog)
 {
     ui->setupUi(this);
@@ -8,12 +10,16 @@ licensesDialog::licensesDialog(QWidget *parent) : QDialog(parent), ui(new Ui::li
     ui->textBrowser->setReadOnly(true);
     ui->textBrowser->setOpenExternalLinks(true);
 }
-
+//
+// Licenses dialog destructor
+//
 licensesDialog::~licensesDialog()
 {
     delete ui;
 }
-
+//
+// Licenses dialog close
+//
 void licensesDialog::on_buttonBox_accepted()
 {
     accept();
