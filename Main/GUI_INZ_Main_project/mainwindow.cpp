@@ -18,7 +18,6 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
         ui->serialPortComboBox->addItem(th.portName());
         ui->portNameLineEdit->setText(th.serialNumber());
     }
-
 }
 //
 // Main destructor
@@ -74,20 +73,21 @@ void MainWindow::on_actionAbout_Qt_triggered()
     QApplication::aboutQt(); // Show dialog
 }
 //
-// Obsługa przycisku Save ekran Connection nr 1
+// Save button on Connection page - 1
 //
 void MainWindow::on_savePathLogPushButton_clicked()
 {
-    if(ui->nameMCULineEdit->text().isEmpty()){
+    if(ui->nameMCULineEdit->text().isEmpty()){ // Chceck if Name of the MCU in Save section is empty
         QMessageBox::information(this,tr("Specify the name"),tr("To add the path you need to specify the MCU name first."));
     }else{
-        this->m_PathLOGFile = QFileDialog::getSaveFileName(this,"Save file","/home/Output.txt","Text files (*.txt)");
-        if(!m_PathLOGFile.isEmpty()){
+        this->m_PathLOGFile = QFileDialog::getSaveFileName(this,"Save file","/home/Output.txt","Text files (*.txt)"); // Choosing the place to sotre the Log file
+        if(!m_PathLOGFile.isEmpty()){ // Chceck if path is empty
             ui->saveFileLogLineEdit->setText(m_PathLOGFile);
             this->m_LOGSystem = new LOGSystem(this,m_PathLOGFile,ui->nameMCULineEdit->text());
             this->m_isPathChosen = true;
         }
     }
+    // Update info about what to do
     if(this->m_isPathChosen && this->m_isConnected){
         ui->statusToDolabel->setText("");
         ui->DataActionPage->setEnabled(true);
@@ -105,7 +105,7 @@ void MainWindow::on_savePathLogPushButton_clicked()
 }
 
 //
-// Obsługa Refresh ekran Connection nr 1
+// Refresh button Connection page - 1
 //
 void MainWindow::on_pushButton_2_clicked()
 {
@@ -121,7 +121,7 @@ void MainWindow::on_pushButton_2_clicked()
 }
 
 //
-// Aktualizacja nazwy portu przy zmianie wyboru COM
+// Update COM port name when choice changed on Connection page - 1
 //
 void MainWindow::on_serialPortComboBox_currentTextChanged(const QString &arg1)
 {
@@ -148,7 +148,7 @@ void MainWindow::on_pushButton_3_clicked()
         port->setStopBits(QSerialPort::OneStop);
         port->setFlowControl(QSerialPort::NoFlowControl);
         port->open(QIODevice::ReadWrite);
-
+        port->clear(); // TODO check if is working!!!
         port->flush();
         port->write("TXXX");
         // Musi przesłać i odebrać T
@@ -199,6 +199,7 @@ void MainWindow::on_pushButton_4_clicked()
             this->m_mcuCommunication = new MCUCommunication(ui->serialPortComboBox->currentText());
             connect(m_mcuCommunication, SIGNAL(finished()),m_mcuCommunication, SLOT(deleteLater()));
             connect(m_mcuCommunication,&MCUCommunication::messageReceived,this,&MainWindow::messageReceived_slot);
+            connect(m_mcuCommunication,&MCUCommunication::messageReceivedJSONData,this,&MainWindow::messageReceivedJSONData_slot);
             this->m_mcuCommunication->start();
             // Przeprowadzenie testu łączności
             this->m_mcuCommunication->sendMessage("OXXX");
@@ -309,5 +310,73 @@ void MainWindow::on_DataActionPage_triggered()
 {
     ui->mainStackedWidget->setCurrentIndex(2);
     statusBar()->showMessage("Live data page");
+}
+
+void MainWindow::messageReceivedJSONData_slot(const double &NP, const double &SP, const double &NS, const double &SS, const double &TM, const double &FN, const double &ST)
+{
+    this->m_MCU_Data.needle_position = QString::number(NP);
+    this->m_MCU_Data.syringe_position = QString::number(SP);
+    this->m_MCU_Data.needle_set_position = QString::number(NS);
+    this->m_MCU_Data.syringe_set_position = QString::number(SS);
+    this->m_MCU_Data.temperature = QString::number(TM);
+    this->m_MCU_Data.fan = QString::number(FN);
+    this->m_MCU_Data.status = QString::number(ST);
+    // Write LOG file
+    if (this->m_isPathChosen) {
+        this->m_LOGSystem->writeLOG(this->m_MCU_Data.needle_set_position,this->m_MCU_Data.needle_position,this->m_MCU_Data.syringe_set_position,
+                                    this->m_MCU_Data.syringe_position,"");
+    }
+
+    // Update the page
+    switch (ui->mainStackedWidget->currentIndex()) {
+    case 2: //Data page
+        if(! (ui->syringeSetPointLineEdit->text() == this->m_MCU_Data.syringe_set_position)){
+            ui->syringeSetPointLineEdit->setText(this->m_MCU_Data.syringe_set_position);
+        }
+        if(!(ui->syringeCurrentpositionLineEdit->text() == this->m_MCU_Data.syringe_position)){
+            ui->syringeCurrentpositionLineEdit->setText(this->m_MCU_Data.syringe_position);
+        }
+        if(!(ui->needleSetPositionLineEdit->text() == this->m_MCU_Data.needle_set_position)){
+            ui->needleSetPositionLineEdit->setText(this->m_MCU_Data.needle_set_position);
+        }
+        if(!(ui->needleCurrentPositiomLineEdit->text() == this->m_MCU_Data.needle_position)){
+            ui->needleCurrentPositiomLineEdit->setText(this->m_MCU_Data.needle_position);
+        }
+        if(!(ui->temperatureLineEdit->text() == this->m_MCU_Data.temperature)){
+            ui->temperatureLineEdit->setText(this->m_MCU_Data.temperature);
+        }
+        if(FN == 1){
+            ui->temperatureFanLabel->setText(tr("Fan: ON"));
+        } else{
+            ui->temperatureFanLabel->setText(tr("Fan: OFF"));
+        }
+        ui->logMessageLineEdit->setText("LOG");
+        break;
+    default:
+        break;
+    }
+}
+
+
+void MainWindow::on_mainStackedWidget_currentChanged(int arg1)
+{
+    switch (arg1) {
+    case 0:
+
+        break;
+    case 1:
+
+        break;
+    case 2:
+        ui->syringeSetPointLineEdit->setText(this->m_MCU_Data.syringe_set_position);
+        ui->syringeCurrentpositionLineEdit->setText(this->m_MCU_Data.syringe_position);
+        ui->needleSetPositionLineEdit->setText(this->m_MCU_Data.needle_set_position);
+        ui->needleCurrentPositiomLineEdit->setText(this->m_MCU_Data.needle_position);
+        ui->temperatureLineEdit->setText(this->m_MCU_Data.temperature);
+        ui->logMessageLineEdit->setText("LOG");
+        break;
+    default:
+        break;
+    }
 }
 

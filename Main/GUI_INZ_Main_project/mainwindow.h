@@ -45,6 +45,8 @@ private slots:
     void on_dataPushButton_clicked();
     void on_connectionPushButton_clicked();
     void on_DataActionPage_triggered();
+    void messageReceivedJSONData_slot(const double &NP, const double &SP, const double &NS, const double &SS, const double &TM, const double &FN, const double &ST);
+    void on_mainStackedWidget_currentChanged(int arg1);
 
 private:
     // Main window UI form
@@ -61,5 +63,16 @@ private:
     MCUCommunication *m_mcuCommunication;
     // Licenses dialog system
     licensesDialog *m_licensesDialog;
+    // Info from MCU
+    struct
+    {
+        QString needle_position = 0;
+        QString syringe_position = 0;
+        QString needle_set_position = 0;
+        QString syringe_set_position = 0;
+        QString temperature = 0;
+        QString fan = 0;
+        QString status = 0;
+    } m_MCU_Data;
 };
 #endif // MAINWINDOW_H

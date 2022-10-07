@@ -14,6 +14,7 @@ public:
     ~MCUCommunication();
 signals:
     void messageReceived(const QString &message);
+    void messageReceivedJSONData(const double &NP, const double &SP, const double &NS, const double &SS, const double &TM, const double &FN, const double &ST);
 private:
 // Members:
     QSerialPort *m_SerialPort;

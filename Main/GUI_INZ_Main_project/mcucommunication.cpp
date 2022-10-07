@@ -1,7 +1,7 @@
 #include "mcucommunication.h"
 #include <QDebug>
 //
-// Konstruktor
+// Construcotr
 //
 MCUCommunication::MCUCommunication(const QString &port_name)
 {
@@ -17,7 +17,7 @@ MCUCommunication::MCUCommunication(const QString &port_name)
     this->m_SerialPort->flush();
 }
 //
-// Destruktor
+// Destructor
 //
 MCUCommunication::~MCUCommunication()
 {
@@ -25,17 +25,17 @@ MCUCommunication::~MCUCommunication()
     delete this->m_SerialPort;
 }
 //
-// Główna funckja i pętla
+// Main function and inifinte loop
 //
 void MCUCommunication::run()
 {
     while (this->m_loop_condidtion) {
         this->m_SerialPort->flush();
         this->m_buffor.clear();
-        if(this->m_SerialPort->waitForReadyRead(100)){
+        if(this->m_SerialPort->waitForReadyRead(1010)){
             this->m_SerialPort->flush();
-            this->m_buffor = this->m_SerialPort->readAll();
-            // Wysłanie odberanej wiadomości do klasy głównej
+            this->m_buffor = this->m_SerialPort->readAll(); // read the message
+            // Read JSON data from message
             try {
                 // JSON READ
                 this->m_JSON_Document= QJsonDocument::fromJson(m_buffor);
@@ -51,9 +51,12 @@ void MCUCommunication::run()
                     this->m_JSON_FN = this->m_JSON_Object.value(QString("FN"));
                     this->m_JSON_ST = this->m_JSON_Object.value(QString("ST"));
                     emit messageReceived(this->m_buffor);
+                    emit messageReceivedJSONData(this->m_JSON_NP.toDouble(),this->m_JSON_SP.toDouble(),this->m_JSON_NS.toDouble(),this->m_JSON_SS.toDouble(),
+                                                 this->m_JSON_TM.toDouble(),this->m_JSON_FN.toDouble(),this->m_JSON_ST.toDouble());
                 }
             } catch (...) {
                 qWarning() << "Bad JSON!";
+                qInfo() << this->m_buffor;
                 this->m_buffor.clear();
                 this->m_SerialPort->flush();
                 this->m_SerialPort->clear();
@@ -65,13 +68,15 @@ void MCUCommunication::run()
     this->m_SerialPort->close();
 }
 //
-// Slot do wysłania wiadomości
+// Write message slot
 //
 void MCUCommunication::sendMessage(const QByteArray &message)
 {
     this->m_SerialPort->write(message);
 }
-
+//
+// Stop the infinite loop
+//
 void MCUCommunication::stopWork()
 {
     this->m_loop_condidtion = false;

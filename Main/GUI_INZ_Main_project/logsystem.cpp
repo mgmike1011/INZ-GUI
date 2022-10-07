@@ -1,5 +1,7 @@
 #include "logsystem.h"
-
+//
+// Constructor
+//
 LOGSystem::LOGSystem(QObject *parent, const QString &filepath, const QString &name): QObject{parent}, m_file(filepath)
 {
     if (m_file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)){
@@ -20,12 +22,16 @@ LOGSystem::LOGSystem(QObject *parent, const QString &filepath, const QString &na
         emit this->writeLOG_error();
     }
 }
-
+//
+// Destructor
+//
 LOGSystem::~LOGSystem()
 {
     this->m_file.close();
 }
-
+//
+// Write to file function
+//
 void LOGSystem::writeLOG(const QString &SetNeedlePosition, const QString &CurrentNeedlePosition,
                          const QString &SetSyringePosition, const QString &CurrentSyringePosition,const QString &Messages)
 {
@@ -36,7 +42,9 @@ void LOGSystem::writeLOG(const QString &SetNeedlePosition, const QString &Curren
     stream << m_TextMessage << "\n";
     emit this->writeLOG_success();
 }
-
+//
+// Write to file function - slot
+//
 void LOGSystem::writeLOG_slot(const QString &SetNeedlePosition, const QString &CurrentNeedlePosition, const QString &SetSyringePosition, const QString &CurrentSyringePosition, const QString &Messages)
 {
     this->m_DateTime = QDateTime::currentDateTime();
