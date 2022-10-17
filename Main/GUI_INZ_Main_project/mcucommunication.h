@@ -6,7 +6,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
-class MCUCommunication : public QThread
+class MCUCommunication : public QObject
 {
     Q_OBJECT
 public:
@@ -18,7 +18,6 @@ signals:
 private:
 // Members:
     QSerialPort *m_SerialPort;
-    bool m_loop_condidtion;
     QByteArray m_buffor;
     QJsonDocument m_JSON_Document;
     QJsonObject m_JSON_Object;
@@ -31,10 +30,10 @@ private:
     QJsonValue m_JSON_FN;
     QJsonValue m_JSON_ST;
 // Methods:
-    void run();
+private slots:
+    void MessageReceived_slot();
 public:
     void sendMessage(const QByteArray &message);
-    void stopWork();
 };
 
 #endif // MCUCOMMUNICATION_H

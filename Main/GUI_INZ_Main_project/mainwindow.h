@@ -48,6 +48,10 @@ private slots:
     void messageReceivedJSONData_slot(const double &NP, const double &SP, const double &NS, const double &SS, const double &TM, const double &FN, const double &ST);
     void on_mainStackedWidget_currentChanged(int arg1);
 
+    void on_stopMotorsPushButton_clicked();
+
+    void on_disconnectPushButton_clicked();
+
 private:
     // Main window UI form
     Ui::MainWindow *ui;
@@ -59,6 +63,8 @@ private:
     bool m_isConnected, m_isPathChosen;
     // Serial port communication - port selection
     QSerialPortInfo m_info;
+    // Is working and sending data
+    bool m_isMCUWorking;
     // MCU communication system
     MCUCommunication *m_mcuCommunication;
     // Licenses dialog system

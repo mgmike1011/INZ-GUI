@@ -1,22 +1,23 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 //
-// Main constructor for whole program
+// Main constructor of program
 //
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    statusBar()->showMessage("Welcome - Start Page"); // Informacja na pasku dolnym
+    statusBar()->showMessage("Welcome - Start Page"); // Information at the bottom
     ui->mainStackedWidget->setCurrentIndex(0); // Setting the first page
     this->m_isPathChosen = false; // Is the path chosen for saving the Log file
     this->m_isConnected = false;  // IS the MCU connected
     QSerialPortInfo info; // Available COM ports
     this->m_info = info; // Available COM ports
+    this->m_isMCUWorking = false;
     auto portList = info.availablePorts();
     ui->serialPortComboBox->clear();
     for(auto &th:portList){ // Saving the available COM ports list to ComboBox screen 1
         ui->serialPortComboBox->addItem(th.portName());
-        ui->portNameLineEdit->setText(th.serialNumber());
+        ui->portNameLineEdit->setText(th.description());
     }
 }
 //
@@ -25,7 +26,6 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
 MainWindow::~MainWindow()
 {
     delete ui;
-    this->m_mcuCommunication->stopWork();
 }
 //
 // Executing the start page - 0
@@ -103,7 +103,6 @@ void MainWindow::on_savePathLogPushButton_clicked()
     }
 
 }
-
 //
 // Refresh button Connection page - 1
 //
@@ -116,10 +115,9 @@ void MainWindow::on_pushButton_2_clicked()
     ui->serialPortComboBox->clear();
     for(auto &th:portList){
         ui->serialPortComboBox->addItem(th.portName());
-        ui->portNameLineEdit->setText(th.serialNumber());
+        ui->portNameLineEdit->setText(th.description());
     }
 }
-
 //
 // Update COM port name when choice changed on Connection page - 1
 //
@@ -132,9 +130,8 @@ void MainWindow::on_serialPortComboBox_currentTextChanged(const QString &arg1)
         }
     }
 }
-
 //
-// Obsługa przycisku Test strona Connection nr 1
+// Test button Connection page - 1
 //
 void MainWindow::on_pushButton_3_clicked()
 {
@@ -148,10 +145,9 @@ void MainWindow::on_pushButton_3_clicked()
         port->setStopBits(QSerialPort::OneStop);
         port->setFlowControl(QSerialPort::NoFlowControl);
         port->open(QIODevice::ReadWrite);
-        port->clear(); // TODO check if is working!!!
+        port->clear();
         port->flush();
         port->write("TXXX");
-        // Musi przesłać i odebrać T
         port->flush();
         QByteArray buf;
         if(port->waitForReadyRead(10)){
@@ -160,9 +156,6 @@ void MainWindow::on_pushButton_3_clicked()
         }
         port->flush();
         port->close();
-        //////// TODO
-        qInfo() << buf;
-        /////////////
         if(buf.toStdString() == "T"){
             ui->testLabel->setText("Test: Success");
             ui->testLabel->setStyleSheet("QLabel { color : green; }");
@@ -177,7 +170,7 @@ void MainWindow::on_pushButton_3_clicked()
     }
 }
 //
-// Obsługa kopiowania nazwy mcu
+// Copy MCU name button
 //
 void MainWindow::on_actionCopy_serial_port_name_triggered()
 {
@@ -190,27 +183,24 @@ void MainWindow::on_actionCopy_serial_port_name_triggered()
     }
 }
 //
-// Obsługa przycisku connect
+// Connect button on Connecction page - 1
 //
 void MainWindow::on_pushButton_4_clicked()
 {
-    if(!this->m_isConnected){
+    if(!this->m_isConnected){ // if is not connected
         if(!ui->serialPortComboBox->currentText().isEmpty()){
             this->m_mcuCommunication = new MCUCommunication(ui->serialPortComboBox->currentText());
-            connect(m_mcuCommunication, SIGNAL(finished()),m_mcuCommunication, SLOT(deleteLater()));
             connect(m_mcuCommunication,&MCUCommunication::messageReceived,this,&MainWindow::messageReceived_slot);
             connect(m_mcuCommunication,&MCUCommunication::messageReceivedJSONData,this,&MainWindow::messageReceivedJSONData_slot);
-            this->m_mcuCommunication->start();
-            // Przeprowadzenie testu łączności
+            // Start the MCU
             this->m_mcuCommunication->sendMessage("OXXX");
-            // TODO implement if connection failed
             this->m_isConnected = true;
+            this->m_isMCUWorking = true;
             ui->pushButton_3->setEnabled(false);
             ui->serialPortComboBox->setEnabled(false);
             ui->pushButton_2->setEnabled(false);
             ui->Conncectionstatuslabel->setText("Status: Connected");
             ui->pushButton_4->setText("Disconnect");
-            // Napis na dole ekarnu
             if(this->m_isPathChosen && this->m_isConnected){
                 ui->statusToDolabel->setText("");
                 ui->DataActionPage->setEnabled(true);
@@ -227,14 +217,16 @@ void MainWindow::on_pushButton_4_clicked()
             QMessageBox::critical(this,"No port selected","To perform a connection select a port.");
         }
     }else{
-        this->m_mcuCommunication->stopWork();
+        this->m_mcuCommunication->sendMessage("EEEE"); // STOP work
+        delete this->m_mcuCommunication;
         ui->pushButton_3->setEnabled(true);
         this->m_isConnected = false;
+        this->m_isMCUWorking = false;
         ui->Conncectionstatuslabel->setText("Status: Disconnected");
         ui->pushButton_4->setText("Connect");
         ui->serialPortComboBox->setEnabled(true);
         ui->pushButton_2->setEnabled(true);
-        // Napis na dole ekarnu
+        // Message bar
         if(this->m_isPathChosen && this->m_isConnected){
             ui->statusToDolabel->setText("");
             ui->DataActionPage->setEnabled(true);
@@ -256,18 +248,14 @@ void MainWindow::on_pushButton_4_clicked()
     }
 }
 //
-// Slot otrzymanej wiadomości
+// Received message slot
 //
 void MainWindow::messageReceived_slot(const QString &message)
 {
-    // TODO: implement !!!
     qInfo() << message;
-    //std::cout << message.toStdString();
-    //qInfo() << (message.toStdString().c_str());
-    // Aktualizacja danych dla ekranu Data -> index 2
 }
 //
-// Obsługa kopiowania sciezki log
+// Copy path to Log file button
 //
 void MainWindow::on_actionCopy_path_to_Log_file_triggered()
 {
@@ -288,7 +276,7 @@ void MainWindow::on_actionLicenses_triggered()
     this->m_licensesDialog->show();
 }
 //
-// Załączenie strony Data
+// Data page button
 //
 void MainWindow::on_dataPushButton_clicked()
 {
@@ -296,7 +284,7 @@ void MainWindow::on_dataPushButton_clicked()
     statusBar()->showMessage("Live data page");
 }
 //
-// Załączenie strony Connection z przycisku na stronie Data
+// Connection page (1) button on Data page - 2
 //
 void MainWindow::on_connectionPushButton_clicked()
 {
@@ -304,14 +292,16 @@ void MainWindow::on_connectionPushButton_clicked()
     statusBar()->showMessage("Connection Page");
 }
 //
-// Załączenie strony Data
+// Data page - 2
 //
 void MainWindow::on_DataActionPage_triggered()
 {
     ui->mainStackedWidget->setCurrentIndex(2);
     statusBar()->showMessage("Live data page");
 }
-
+//
+// message Received in JSON Data slot
+//
 void MainWindow::messageReceivedJSONData_slot(const double &NP, const double &SP, const double &NS, const double &SS, const double &TM, const double &FN, const double &ST)
 {
     this->m_MCU_Data.needle_position = QString::number(NP);
@@ -324,7 +314,7 @@ void MainWindow::messageReceivedJSONData_slot(const double &NP, const double &SP
     // Write LOG file
     if (this->m_isPathChosen) {
         this->m_LOGSystem->writeLOG(this->m_MCU_Data.needle_set_position,this->m_MCU_Data.needle_position,this->m_MCU_Data.syringe_set_position,
-                                    this->m_MCU_Data.syringe_position,"");
+                                    this->m_MCU_Data.syringe_position,"-");
     }
 
     // Update the page
@@ -352,22 +342,24 @@ void MainWindow::messageReceivedJSONData_slot(const double &NP, const double &SP
         }
         ui->logMessageLineEdit->setText("LOG");
         break;
+        //TODO next page
     default:
         break;
     }
 }
-
-
+//
+// Refresh the data when page changed
+//
 void MainWindow::on_mainStackedWidget_currentChanged(int arg1)
 {
     switch (arg1) {
     case 0:
-
+        // No data to show
         break;
     case 1:
-
+        // No data to show
         break;
-    case 2:
+    case 2: // Data page
         ui->syringeSetPointLineEdit->setText(this->m_MCU_Data.syringe_set_position);
         ui->syringeCurrentpositionLineEdit->setText(this->m_MCU_Data.syringe_position);
         ui->needleSetPositionLineEdit->setText(this->m_MCU_Data.needle_set_position);
@@ -375,8 +367,63 @@ void MainWindow::on_mainStackedWidget_currentChanged(int arg1)
         ui->temperatureLineEdit->setText(this->m_MCU_Data.temperature);
         ui->logMessageLineEdit->setText("LOG");
         break;
+        // TODO next pages
     default:
         break;
     }
+}
+//
+// Stop motors button - Data page - 2
+//
+void MainWindow::on_stopMotorsPushButton_clicked()
+{
+    if( this->m_isMCUWorking){
+        this->m_mcuCommunication->sendMessage("EEEE");
+        this->m_isMCUWorking = false;
+        ui->stopMotorsPushButton->setStyleSheet("QPushButton { background-color : rgb(60,179,113); }");
+        ui->stopMotorsPushButton->setText("START");
+        ui->label_21->setText("START the motors:");
+    }else{
+        this->m_mcuCommunication->sendMessage("OOOO");
+        this->m_isMCUWorking = true;
+        ui->stopMotorsPushButton->setStyleSheet("QPushButton { background-color : rgb(220,20,60); }");
+        ui->stopMotorsPushButton->setText("STOP");
+        ui->label_21->setText("STOP the motors:");
+    }
+}
+//
+// Disconnect button - Data page - 2
+//
+void MainWindow::on_disconnectPushButton_clicked()
+{
+    this->m_mcuCommunication->sendMessage("EEEE"); // STOP work
+    delete this->m_mcuCommunication;
+    ui->pushButton_3->setEnabled(true);
+    this->m_isConnected = false;
+    this->m_isMCUWorking = false;
+    ui->Conncectionstatuslabel->setText("Status: Disconnected");
+    ui->pushButton_4->setText("Connect");
+    ui->serialPortComboBox->setEnabled(true);
+    ui->pushButton_2->setEnabled(true);
+    // Message bar
+    if(this->m_isPathChosen && this->m_isConnected){
+        ui->statusToDolabel->setText("");
+        ui->DataActionPage->setEnabled(true);
+        ui->dataPushButton->setEnabled(true);
+    }else if(this->m_isPathChosen && !this->m_isConnected){
+        ui->statusToDolabel->setText("Connect to the MCU.");
+        ui->DataActionPage->setEnabled(false);
+        ui->dataPushButton->setEnabled(false);
+        this->m_LOGSystem->writeLOG("-","-","-","-","Disconnected from the MCU");
+    }else if(! this->m_isPathChosen && this->m_isConnected){
+        ui->statusToDolabel->setText("Select the path.");
+        ui->DataActionPage->setEnabled(false);
+        ui->dataPushButton->setEnabled(false);
+    }else{
+        ui->statusToDolabel->setText("Select the path and connect to the MCU.");
+        ui->DataActionPage->setEnabled(false);
+        ui->dataPushButton->setEnabled(false);
+    }
+    ui->mainStackedWidget->setCurrentIndex(1);
 }
 

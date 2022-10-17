@@ -870,11 +870,16 @@
            </item>
            <item>
             <widget class="QPushButton" name="stopMotorsPushButton">
+             <property name="font">
+              <font>
+               <bold>true</bold>
+              </font>
+             </property>
              <property name="cursor">
               <cursorShape>PointingHandCursor</cursorShape>
              </property>
              <property name="styleSheet">
-              <string notr="true">background-color: rgb(255, 0, 0);</string>
+              <string notr="true">background-color: rgb(220,20,60);</string>
              </property>
              <property name="text">
               <string>STOP</string>
