@@ -91,14 +91,17 @@ void MainWindow::on_savePathLogPushButton_clicked()
     if(this->m_isPathChosen && this->m_isConnected){
         ui->statusToDolabel->setText("");
         ui->DataActionPage->setEnabled(true);
+        ui->controlActionPage->setEnabled(true);
         ui->dataPushButton->setEnabled(true);
     }else if(this->m_isPathChosen && !this->m_isConnected){
         ui->statusToDolabel->setText("Connect to the MCU.");
         ui->DataActionPage->setEnabled(false);
+        ui->controlActionPage->setEnabled(false);
         ui->dataPushButton->setEnabled(false);
     }else if(! this->m_isPathChosen && this->m_isConnected){
         ui->statusToDolabel->setText("Select the path.");
         ui->DataActionPage->setEnabled(false);
+        ui->controlActionPage->setEnabled(false);
         ui->dataPushButton->setEnabled(false);
     }
 
@@ -204,6 +207,7 @@ void MainWindow::on_pushButton_4_clicked()
             if(this->m_isPathChosen && this->m_isConnected){
                 ui->statusToDolabel->setText("");
                 ui->DataActionPage->setEnabled(true);
+                ui->controlActionPage->setEnabled(true);
                 ui->dataPushButton->setEnabled(true);
                 this->m_LOGSystem->writeLOG("-","-","-","-","Connected to the MCU");
             }else if(this->m_isPathChosen && !this->m_isConnected){
@@ -230,15 +234,18 @@ void MainWindow::on_pushButton_4_clicked()
         if(this->m_isPathChosen && this->m_isConnected){
             ui->statusToDolabel->setText("");
             ui->DataActionPage->setEnabled(true);
+            ui->controlActionPage->setEnabled(true);
             ui->dataPushButton->setEnabled(true);
         }else if(this->m_isPathChosen && !this->m_isConnected){
             ui->statusToDolabel->setText("Connect to the MCU.");
             ui->DataActionPage->setEnabled(false);
+            ui->controlActionPage->setEnabled(false);
             ui->dataPushButton->setEnabled(false);
             this->m_LOGSystem->writeLOG("-","-","-","-","Disconnected from the MCU");
         }else if(! this->m_isPathChosen && this->m_isConnected){
             ui->statusToDolabel->setText("Select the path.");
             ui->DataActionPage->setEnabled(false);
+            ui->controlActionPage->setEnabled(false);
             ui->dataPushButton->setEnabled(false);
         }else{
             ui->statusToDolabel->setText("Select the path and connect to the MCU.");
@@ -335,12 +342,27 @@ void MainWindow::messageReceivedJSONData_slot(const double &NP, const double &SP
         if(!(ui->temperatureLineEdit->text() == this->m_MCU_Data.temperature)){
             ui->temperatureLineEdit->setText(this->m_MCU_Data.temperature);
         }
-        if(FN == 1){
+        if(FN == 1){ //TODO change
             ui->temperatureFanLabel->setText(tr("Fan: ON"));
         } else{
             ui->temperatureFanLabel->setText(tr("Fan: OFF"));
         }
-        ui->logMessageLineEdit->setText("LOG");
+        ui->logMessageLineEdit->setText("LOG"); // TODO
+        break;
+    case 3:
+        break;
+    case 4:
+        ui->SyringeSetPositionLineEdit_Injection->setText(this->m_MCU_Data.syringe_set_position);
+        ui->CurrentValueLineEdit_SyringeInjection->setText(this->m_MCU_Data.syringe_position);
+        ui->NeedleSetPositionLineEdit_Injection->setText(this->m_MCU_Data.needle_set_position);
+        ui->CurrentValueLineEdit_Injection->setText(this->m_MCU_Data.needle_position);
+        ui->TemperatureLineEdit_Injection->setText(this->m_MCU_Data.temperature);
+        if(FN == 1){ //TODO change
+            ui->FanInfoLabel_Injection->setText(tr("Fan: ON"));
+        } else{
+            ui->FanInfoLabel_Injection->setText(tr("Fan: OFF"));
+        }
+        ui->LogMessageLineEdit_Injection->setText("LOG"); // TODO
         break;
         //TODO next page
     default:
@@ -364,10 +386,19 @@ void MainWindow::on_mainStackedWidget_currentChanged(int arg1)
         ui->syringeCurrentpositionLineEdit->setText(this->m_MCU_Data.syringe_position);
         ui->needleSetPositionLineEdit->setText(this->m_MCU_Data.needle_set_position);
         ui->needleCurrentPositiomLineEdit->setText(this->m_MCU_Data.needle_position);
-        ui->temperatureLineEdit->setText(this->m_MCU_Data.temperature);
-        ui->logMessageLineEdit->setText("LOG");
+        ui->temperatureLineEdit->setText(this->m_MCU_Data.temperature); //TODO change fan
+        ui->logMessageLineEdit->setText("LOG"); // TODO
         break;
-        // TODO next pages
+    case 3:
+        break;
+    case 4:
+        ui->SyringeSetPositionLineEdit_Injection->setText(this->m_MCU_Data.syringe_set_position);
+        ui->CurrentValueLineEdit_SyringeInjection->setText(this->m_MCU_Data.syringe_position);
+        ui->NeedleSetPositionLineEdit_Injection->setText(this->m_MCU_Data.needle_set_position);
+        ui->CurrentValueLineEdit_Injection->setText(this->m_MCU_Data.needle_position);
+        ui->TemperatureLineEdit_Injection->setText(this->m_MCU_Data.temperature);
+        ui->LogMessageLineEdit_Injection->setText("LOG"); // TODO
+        break;
     default:
         break;
     }
@@ -382,12 +413,22 @@ void MainWindow::on_stopMotorsPushButton_clicked()
         this->m_isMCUWorking = false;
         ui->stopMotorsPushButton->setStyleSheet("QPushButton { background-color : rgb(60,179,113); }");
         ui->stopMotorsPushButton->setText("START");
+        /////////////
+        ui->stopMotorsPushButton_Injection->setStyleSheet("QPushButton { background-color : rgb(60,179,113); }");
+        ui->stopMotorsPushButton_Injection->setText("START");
+        /////////////
         ui->label_21->setText("START the motors:");
+        ui->label_47->setText("START the motors:");
     }else{
         this->m_mcuCommunication->sendMessage("OOOO");
         this->m_isMCUWorking = true;
         ui->stopMotorsPushButton->setStyleSheet("QPushButton { background-color : rgb(220,20,60); }");
         ui->stopMotorsPushButton->setText("STOP");
+        /////////////
+        ui->stopMotorsPushButton_Injection->setStyleSheet("QPushButton { background-color : rgb(220,20,60); }");
+        ui->stopMotorsPushButton_Injection->setText("STOP");
+        /////////////
+        ui->label_47->setText("STOP the motors:");
         ui->label_21->setText("STOP the motors:");
     }
 }
@@ -397,7 +438,6 @@ void MainWindow::on_stopMotorsPushButton_clicked()
 void MainWindow::on_disconnectPushButton_clicked()
 {
     this->m_mcuCommunication->sendMessage("EEEE"); // STOP work
-    delete this->m_mcuCommunication;
     ui->pushButton_3->setEnabled(true);
     this->m_isConnected = false;
     this->m_isMCUWorking = false;
@@ -409,21 +449,251 @@ void MainWindow::on_disconnectPushButton_clicked()
     if(this->m_isPathChosen && this->m_isConnected){
         ui->statusToDolabel->setText("");
         ui->DataActionPage->setEnabled(true);
+        ui->controlActionPage->setEnabled(true);
         ui->dataPushButton->setEnabled(true);
     }else if(this->m_isPathChosen && !this->m_isConnected){
         ui->statusToDolabel->setText("Connect to the MCU.");
         ui->DataActionPage->setEnabled(false);
+        ui->controlActionPage->setEnabled(false);
         ui->dataPushButton->setEnabled(false);
         this->m_LOGSystem->writeLOG("-","-","-","-","Disconnected from the MCU");
     }else if(! this->m_isPathChosen && this->m_isConnected){
         ui->statusToDolabel->setText("Select the path.");
         ui->DataActionPage->setEnabled(false);
+        ui->controlActionPage->setEnabled(false);
         ui->dataPushButton->setEnabled(false);
     }else{
         ui->statusToDolabel->setText("Select the path and connect to the MCU.");
         ui->DataActionPage->setEnabled(false);
+        ui->controlActionPage->setEnabled(false);
         ui->dataPushButton->setEnabled(false);
     }
     ui->mainStackedWidget->setCurrentIndex(1);
+    delete this->m_mcuCommunication;
+}
+//
+// Control button - Data page - 2
+//
+void MainWindow::on_controlPushButton_clicked()
+{
+    ui->mainStackedWidget->setCurrentIndex(4);
+    statusBar()->showMessage("Select the type.");
+    ui->controlActionPage->setEnabled(true);
+}
+//
+// Control action page button
+//
+void MainWindow::on_controlActionPage_triggered()
+{
+    ui->mainStackedWidget->setCurrentIndex(3);
+    statusBar()->showMessage("Select the type.");
+}
+//
+// Send to MCU button Needle -> Control page - 4
+//
+void MainWindow::on_SendToMCUPushButton_NeedleInjection_clicked()
+{
+    QByteArray _message;
+    _message.append('N');
+    QString _number = ui->NewSetPositionSpinBox_NeedleInjection->text();
+    switch (_number.size()) {
+    case 1:
+        _message.append('0');
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    case 2:
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    default:
+        _message.append(_number.toStdString());
+        break;
+    }
+    this->m_mcuCommunication->sendMessage(_message);
+}
+//
+// Send to MCU button Syringe -> Control page - 4
+//
+void MainWindow::on_SendToMCUPushButton_SyringeInjection_clicked()
+{
+    QByteArray _message;
+    _message.append('S');
+    QString _number = ui->NewSetPositionSpinBox_SyringeInjection->text();
+    switch (_number.size()) {
+    case 1:
+        _message.append('0');
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    case 2:
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    default:
+        _message.append(_number.toStdString());
+        break;
+    }
+    this->m_mcuCommunication->sendMessage(_message);
+}
+//
+// Home position push button Needle -> Control page - 4
+//
+void MainWindow::on_HomePositionPushButton_NeedleInjection_clicked()
+{
+    ui->NewSetPositionSpinBox_NeedleInjection->setValue(100); // TODO check home position
+    this->m_mcuCommunication->sendMessage("N100"); // TODO check home position
+}
+//
+// Home position push button Syringe -> Control page - 4
+//
+void MainWindow::on_HomePositionPushButton_SyringeInjection_clicked()
+{
+    ui->NewSetPositionSpinBox_SyringeInjection->setValue(100); // TODO check home position
+    this->m_mcuCommunication->sendMessage("S100"); // TODO check home position
+}
+//
+// Plus one mm push button Needle -> Control page - 4
+//
+void MainWindow::on_PlusOnemmPushButton_NeedleInjection_clicked()
+{
+    int number = ui->NewSetPositionSpinBox_NeedleInjection->value();
+    number += 1;
+    ui->NewSetPositionSpinBox_NeedleInjection->setValue(number);
+    QByteArray _message;
+    _message.append('N');
+    QString _number = QString::number(number);
+    switch (_number.size()) {
+    case 1:
+        _message.append('0');
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    case 2:
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    default:
+        _message.append(_number.toStdString());
+        break;
+    }
+    this->m_mcuCommunication->sendMessage(_message);
+}
+//
+// Minus one mm push button Needle -> Control page - 4
+//
+void MainWindow::on_MinusOnemmPushButton_NeedleInjection_clicked()
+{
+    int number = ui->NewSetPositionSpinBox_NeedleInjection->value();
+    number -= 1;
+    ui->NewSetPositionSpinBox_NeedleInjection->setValue(number);
+    QByteArray _message;
+    _message.append('N');
+    QString _number = QString::number(number);
+    switch (_number.size()) {
+    case 1:
+        _message.append('0');
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    case 2:
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    default:
+        _message.append(_number.toStdString());
+        break;
+    }
+    this->m_mcuCommunication->sendMessage(_message);
+}
+//
+// Plus one ml push button Syringe -> Control page - 4
+//
+void MainWindow::on_PlusOnemlPushButton_SyringeInjection_clicked()
+{
+    int number = ui->NewSetPositionSpinBox_SyringeInjection->value();
+    number += 1; // TODO chceck how much is 1 ml
+    ui->NewSetPositionSpinBox_SyringeInjection->setValue(number);
+    QByteArray _message;
+    _message.append('S');
+    QString _number = QString::number(number);
+    switch (_number.size()) {
+    case 1:
+        _message.append('0');
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    case 2:
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    default:
+        _message.append(_number.toStdString());
+        break;
+    }
+    this->m_mcuCommunication->sendMessage(_message);
+}
+//
+// Minus one ml push button Syringe -> Control page - 4
+//
+void MainWindow::on_MinusOnemlPushButton_SyringeInjection_clicked()
+{
+    int number = ui->NewSetPositionSpinBox_SyringeInjection->value();
+    number -= 1; // TODO chceck how much is 1 ml
+    ui->NewSetPositionSpinBox_SyringeInjection->setValue(number);
+    QByteArray _message;
+    _message.append('S');
+    QString _number = QString::number(number);
+    switch (_number.size()) {
+    case 1:
+        _message.append('0');
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    case 2:
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    default:
+        _message.append(_number.toStdString());
+        break;
+    }
+    this->m_mcuCommunication->sendMessage(_message);
+}
+//
+// Data page push button - Control page - 4
+//
+void MainWindow::on_DataPagePushButton_Injection_clicked()
+{
+    ui->mainStackedWidget->setCurrentIndex(2);
+    statusBar()->showMessage("Data page.");
+}
+
+
+void MainWindow::on_stopMotorsPushButton_Injection_clicked()
+{
+    if( this->m_isMCUWorking){
+        this->m_mcuCommunication->sendMessage("EEEE");
+        this->m_isMCUWorking = false;
+        ui->stopMotorsPushButton->setStyleSheet("QPushButton { background-color : rgb(60,179,113); }");
+        ui->stopMotorsPushButton->setText("START");
+        /////////////
+        ui->stopMotorsPushButton_Injection->setStyleSheet("QPushButton { background-color : rgb(60,179,113); }");
+        ui->stopMotorsPushButton_Injection->setText("START");
+        /////////////
+        ui->label_21->setText("START the motors:");
+        ui->label_47->setText("START the motors:");
+    }else{
+        this->m_mcuCommunication->sendMessage("OOOO");
+        this->m_isMCUWorking = true;
+        ui->stopMotorsPushButton->setStyleSheet("QPushButton { background-color : rgb(220,20,60); }");
+        ui->stopMotorsPushButton->setText("STOP");
+        /////////////
+        ui->stopMotorsPushButton_Injection->setStyleSheet("QPushButton { background-color : rgb(220,20,60); }");
+        ui->stopMotorsPushButton_Injection->setText("STOP");
+        /////////////
+        ui->label_47->setText("STOP the motors:");
+        ui->label_21->setText("STOP the motors:");
+    }
 }
 

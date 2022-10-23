@@ -52,6 +52,30 @@ private slots:
 
     void on_disconnectPushButton_clicked();
 
+    void on_controlPushButton_clicked();
+
+    void on_controlActionPage_triggered();
+
+    void on_SendToMCUPushButton_NeedleInjection_clicked();
+
+    void on_SendToMCUPushButton_SyringeInjection_clicked();
+
+    void on_HomePositionPushButton_NeedleInjection_clicked();
+
+    void on_HomePositionPushButton_SyringeInjection_clicked();
+
+    void on_PlusOnemmPushButton_NeedleInjection_clicked();
+
+    void on_MinusOnemmPushButton_NeedleInjection_clicked();
+
+    void on_PlusOnemlPushButton_SyringeInjection_clicked();
+
+    void on_MinusOnemlPushButton_SyringeInjection_clicked();
+
+    void on_DataPagePushButton_Injection_clicked();
+
+    void on_stopMotorsPushButton_Injection_clicked();
+
 private:
     // Main window UI form
     Ui::MainWindow *ui;
