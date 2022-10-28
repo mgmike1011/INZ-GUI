@@ -15,6 +15,10 @@
 #include "licensesdialog.h"
 #include <iostream>
 
+//
+// Defines
+//
+#define MM_TO_ML 2 // 2mm = 1ml TODO check
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -76,6 +80,34 @@ private slots:
 
     void on_stopMotorsPushButton_Injection_clicked();
 
+    void on_InjectionButton_clicked();
+
+    void on_InjectPushButton_Injection_clicked();
+
+    void on_SuctionButton_clicked();
+
+    void on_stopMotorsPushButton_Suction_clicked();
+
+    void on_DataPagePushButton_Suction_clicked();
+
+    void on_HomePositionPushButton_NeedleSuction_clicked();
+
+    void on_PlusOnemmPushButton_NeedleSuction_clicked();
+
+    void on_MinusOnemmPushButton_NeedleSuction_clicked();
+
+    void on_SendToMCUPushButton_NeedleSuction_clicked();
+
+    void on_HomePositionPushButton_SyringeSuction_clicked();
+
+    void on_PlusOnemlPushButton_SyringeSuction_clicked();
+
+    void on_MinusOnemlPushButton_SyringeSuction_clicked();
+
+    void on_SendToMCUPushButton_SyringeSuction_clicked();
+
+    void on_SuckPushButton_Suction_clicked();
+
 private:
     // Main window UI form
     Ui::MainWindow *ui;
@@ -103,6 +135,12 @@ private:
         QString temperature = 0;
         QString fan = 0;
         QString status = 0;
+        QString message = "";
     } m_MCU_Data;
+    // Control
+    unsigned int m_HomePosition_Syringe_Injection;
+    unsigned int m_HomePosition_Syringe_Suction;
+    unsigned int m_HomePosition_Needle_Injection;
+    unsigned int m_HomePosition_Needle_Suction;
 };
 #endif // MAINWINDOW_H

@@ -19,6 +19,15 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
         ui->serialPortComboBox->addItem(th.portName());
         ui->portNameLineEdit->setText(th.description());
     }
+    this->m_HomePosition_Needle_Injection = 100; //TODO check value
+    this->m_HomePosition_Needle_Suction = 100; //TODO check value
+    this->m_HomePosition_Syringe_Injection = 100; // TODO check value
+    this->m_HomePosition_Syringe_Suction = 100; // TODO check value
+
+    ui->SyringeFillProgressBar_Injection->setMinimum(0); // in ml
+    ui->SyringeFillProgressBar_Injection->setMaximum(this->m_HomePosition_Syringe_Injection / MM_TO_ML); // Max ml in syringe
+    ui->SyringeFillProgressBar_Suction->setMinimum(0);
+    ui->SyringeFillProgressBar_Suction->setMaximum(this->m_HomePosition_Syringe_Suction / MM_TO_ML); // Max ml in syringe
 }
 //
 // Main destructor
@@ -259,7 +268,7 @@ void MainWindow::on_pushButton_4_clicked()
 //
 void MainWindow::messageReceived_slot(const QString &message)
 {
-    qInfo() << message;
+//    qInfo() << message;
 }
 //
 // Copy path to Log file button
@@ -318,14 +327,36 @@ void MainWindow::messageReceivedJSONData_slot(const double &NP, const double &SP
     this->m_MCU_Data.temperature = QString::number(TM);
     this->m_MCU_Data.fan = QString::number(FN);
     this->m_MCU_Data.status = QString::number(ST);
+    //
+    // Message
+    //
+    switch (this->m_MCU_Data.status.toInt()) {
+    case 0:
+        this->m_MCU_Data.message = tr("Status: OK");
+        break;
+    case 1:
+        this->m_MCU_Data.message = tr("Status: MOTOR STOP");
+        break;
+    default:
+        this->m_MCU_Data.message = tr("Status: OK");
+        break;
+    }
+    //
     // Write LOG file
+    //
     if (this->m_isPathChosen) {
         this->m_LOGSystem->writeLOG(this->m_MCU_Data.needle_set_position,this->m_MCU_Data.needle_position,this->m_MCU_Data.syringe_set_position,
-                                    this->m_MCU_Data.syringe_position,"-");
+                                    this->m_MCU_Data.syringe_position,this->m_MCU_Data.message);
     }
 
     // Update the page
     switch (ui->mainStackedWidget->currentIndex()) {
+    case 0:
+         // No data to show
+        break;
+    case 1:
+         // No data to show
+        break;
     case 2: //Data page
         if(! (ui->syringeSetPointLineEdit->text() == this->m_MCU_Data.syringe_set_position)){
             ui->syringeSetPointLineEdit->setText(this->m_MCU_Data.syringe_set_position);
@@ -342,29 +373,69 @@ void MainWindow::messageReceivedJSONData_slot(const double &NP, const double &SP
         if(!(ui->temperatureLineEdit->text() == this->m_MCU_Data.temperature)){
             ui->temperatureLineEdit->setText(this->m_MCU_Data.temperature);
         }
-        if(FN == 1){ //TODO change
+        if(FN == 1){
             ui->temperatureFanLabel->setText(tr("Fan: ON"));
         } else{
             ui->temperatureFanLabel->setText(tr("Fan: OFF"));
         }
-        ui->logMessageLineEdit->setText("LOG"); // TODO
+        if(!(ui->logMessageLineEdit->text() == this->m_MCU_Data.message)){
+            ui->logMessageLineEdit->setText(this->m_MCU_Data.message);
+        }
         break;
-    case 3:
+    case 3: // Choose surgery type
         break;
-    case 4:
-        ui->SyringeSetPositionLineEdit_Injection->setText(this->m_MCU_Data.syringe_set_position);
-        ui->CurrentValueLineEdit_SyringeInjection->setText(this->m_MCU_Data.syringe_position);
-        ui->NeedleSetPositionLineEdit_Injection->setText(this->m_MCU_Data.needle_set_position);
-        ui->CurrentValueLineEdit_Injection->setText(this->m_MCU_Data.needle_position);
-        ui->TemperatureLineEdit_Injection->setText(this->m_MCU_Data.temperature);
-        if(FN == 1){ //TODO change
+    case 4: // Injection
+        if(!(ui->SyringeSetPositionLineEdit_Injection->text() == this->m_MCU_Data.syringe_set_position)){
+            ui->SyringeSetPositionLineEdit_Injection->setText(this->m_MCU_Data.syringe_set_position);
+        }
+        if(!(ui->CurrentValueLineEdit_SyringeInjection->text() == this->m_MCU_Data.syringe_position)){
+            ui->CurrentValueLineEdit_SyringeInjection->setText(this->m_MCU_Data.syringe_position);
+            ui->SyringeFillProgressBar_Injection->setValue(this->m_MCU_Data.syringe_position.toInt() / MM_TO_ML); // Syringe fill progres bar
+        }
+        if(!(ui->NeedleSetPositionLineEdit_Injection->text() == this->m_MCU_Data.needle_set_position)){
+            ui->NeedleSetPositionLineEdit_Injection->setText(this->m_MCU_Data.needle_set_position);
+        }
+        if(!(ui->CurrentValueLineEdit_Injection->text() == this->m_MCU_Data.needle_position)){
+            ui->CurrentValueLineEdit_Injection->setText(this->m_MCU_Data.needle_position);
+        }
+        if(!(ui->TemperatureLineEdit_Injection->text() == this->m_MCU_Data.temperature)){
+            ui->TemperatureLineEdit_Injection->setText(this->m_MCU_Data.temperature);
+        }
+        if(FN == 1){
             ui->FanInfoLabel_Injection->setText(tr("Fan: ON"));
         } else{
             ui->FanInfoLabel_Injection->setText(tr("Fan: OFF"));
         }
-        ui->LogMessageLineEdit_Injection->setText("LOG"); // TODO
+        if(!(ui->LogMessageLineEdit_Injection->text() == this->m_MCU_Data.message)){
+            ui->LogMessageLineEdit_Injection->setText(this->m_MCU_Data.message);
+        }
         break;
-        //TODO next page
+    case 5: // Suction
+        if(!(ui->SyringeSetPositionLineEdit_Suction->text() == this->m_MCU_Data.syringe_set_position)){
+            ui->SyringeSetPositionLineEdit_Suction->setText(this->m_MCU_Data.syringe_set_position);
+        }
+        if(!(ui->CurrentValueLineEdit_SyringeSuction->text() == this->m_MCU_Data.syringe_position)){
+            ui->CurrentValueLineEdit_SyringeSuction->setText(this->m_MCU_Data.syringe_position);
+            ui->SyringeFillProgressBar_Suction->setValue(this->m_MCU_Data.syringe_position.toInt() / MM_TO_ML); // Syringe fill progres bar
+        }
+        if(!(ui->NeedleSetPositionLineEdit_Suction->text() == this->m_MCU_Data.needle_set_position)){
+            ui->NeedleSetPositionLineEdit_Suction->setText(this->m_MCU_Data.needle_set_position);
+        }
+        if(!(ui->CurrentValueLineEdit_Suction->text() == this->m_MCU_Data.needle_position)){
+            ui->CurrentValueLineEdit_Suction->setText(this->m_MCU_Data.needle_position);
+        }
+        if(!(ui->TemperatureLineEdit_Suction->text() == this->m_MCU_Data.temperature)){
+            ui->TemperatureLineEdit_Suction->setText(this->m_MCU_Data.temperature);
+        }
+        if(FN == 1){
+            ui->FanInfoLabel_Suction->setText(tr("Fan: ON"));
+        } else{
+            ui->FanInfoLabel_Suction->setText(tr("Fan: OFF"));
+        }
+        if(!(ui->LogMessageLineEdit_Suction->text() == this->m_MCU_Data.message)){
+            ui->LogMessageLineEdit_Suction->setText(this->m_MCU_Data.message);
+        }
+        break;
     default:
         break;
     }
@@ -386,18 +457,45 @@ void MainWindow::on_mainStackedWidget_currentChanged(int arg1)
         ui->syringeCurrentpositionLineEdit->setText(this->m_MCU_Data.syringe_position);
         ui->needleSetPositionLineEdit->setText(this->m_MCU_Data.needle_set_position);
         ui->needleCurrentPositiomLineEdit->setText(this->m_MCU_Data.needle_position);
-        ui->temperatureLineEdit->setText(this->m_MCU_Data.temperature); //TODO change fan
-        ui->logMessageLineEdit->setText("LOG"); // TODO
+        ui->temperatureLineEdit->setText(this->m_MCU_Data.temperature);
+        if(this->m_MCU_Data.fan == "1"){
+            ui->temperatureFanLabel->setText(tr("Fan: ON"));
+        } else{
+            ui->temperatureFanLabel->setText(tr("Fan: OFF"));
+        }
+        ui->logMessageLineEdit->setText(this->m_MCU_Data.message);
         break;
-    case 3:
+    case 3: // Choose surgery type
         break;
-    case 4:
+    case 4: // Injection
         ui->SyringeSetPositionLineEdit_Injection->setText(this->m_MCU_Data.syringe_set_position);
         ui->CurrentValueLineEdit_SyringeInjection->setText(this->m_MCU_Data.syringe_position);
         ui->NeedleSetPositionLineEdit_Injection->setText(this->m_MCU_Data.needle_set_position);
         ui->CurrentValueLineEdit_Injection->setText(this->m_MCU_Data.needle_position);
         ui->TemperatureLineEdit_Injection->setText(this->m_MCU_Data.temperature);
-        ui->LogMessageLineEdit_Injection->setText("LOG"); // TODO
+        if(this->m_MCU_Data.fan == "1"){
+            ui->FanInfoLabel_Injection->setText(tr("Fan: ON"));
+        } else{
+            ui->FanInfoLabel_Injection->setText(tr("Fan: OFF"));
+        }
+        ui->LogMessageLineEdit_Injection->setText(this->m_MCU_Data.message);
+        ui->NewSetPositionSpinBox_NeedleInjection->setValue(this->m_MCU_Data.needle_set_position.toInt());
+        ui->NewSetPositionSpinBox_SyringeInjection->setValue(this->m_MCU_Data.syringe_position.toInt());
+        break;
+    case 5: // Suction
+        ui->SyringeSetPositionLineEdit_Suction->setText(this->m_MCU_Data.syringe_set_position);
+        ui->CurrentValueLineEdit_SyringeSuction->setText(this->m_MCU_Data.syringe_position);
+        ui->NeedleSetPositionLineEdit_Suction->setText(this->m_MCU_Data.needle_set_position);
+        ui->CurrentValueLineEdit_Suction->setText(this->m_MCU_Data.needle_position);
+        ui->TemperatureLineEdit_Suction->setText(this->m_MCU_Data.temperature);
+        if(this->m_MCU_Data.fan == "1"){
+            ui->FanInfoLabel_Suction->setText(tr("Fan: ON"));
+        } else{
+            ui->FanInfoLabel_Suction->setText(tr("Fan: OFF"));
+        }
+        ui->LogMessageLineEdit_Suction->setText(this->m_MCU_Data.message);
+        ui->NewSetPositionSpinBox_Suction->setValue(this->m_MCU_Data.needle_set_position.toInt());
+        ui->NewSetPositionSpinBox_SyringeSuction->setValue(this->m_MCU_Data.syringe_set_position.toInt());
         break;
     default:
         break;
@@ -476,7 +574,7 @@ void MainWindow::on_disconnectPushButton_clicked()
 //
 void MainWindow::on_controlPushButton_clicked()
 {
-    ui->mainStackedWidget->setCurrentIndex(4);
+    ui->mainStackedWidget->setCurrentIndex(3);
     statusBar()->showMessage("Select the type.");
     ui->controlActionPage->setEnabled(true);
 }
@@ -541,16 +639,50 @@ void MainWindow::on_SendToMCUPushButton_SyringeInjection_clicked()
 //
 void MainWindow::on_HomePositionPushButton_NeedleInjection_clicked()
 {
-    ui->NewSetPositionSpinBox_NeedleInjection->setValue(100); // TODO check home position
-    this->m_mcuCommunication->sendMessage("N100"); // TODO check home position
+    ui->NewSetPositionSpinBox_NeedleInjection->setValue(this->m_HomePosition_Needle_Injection);
+    QByteArray _message;
+    _message.append('N');
+    QString _number = QString::number(this->m_HomePosition_Needle_Injection);
+    switch (_number.size()) {
+    case 1:
+        _message.append('0');
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    case 2:
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    default:
+        _message.append(_number.toStdString());
+        break;
+    }
+    this->m_mcuCommunication->sendMessage(_message);
 }
 //
 // Home position push button Syringe -> Control page - 4
 //
 void MainWindow::on_HomePositionPushButton_SyringeInjection_clicked()
 {
-    ui->NewSetPositionSpinBox_SyringeInjection->setValue(100); // TODO check home position
-    this->m_mcuCommunication->sendMessage("S100"); // TODO check home position
+    ui->NewSetPositionSpinBox_SyringeInjection->setValue(this->m_HomePosition_Syringe_Injection);
+    QByteArray _message;
+    _message.append('S');
+    QString _number = QString::number(this->m_HomePosition_Syringe_Injection);
+    switch (_number.size()) {
+    case 1:
+        _message.append('0');
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    case 2:
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    default:
+        _message.append(_number.toStdString());
+        break;
+    }
+    this->m_mcuCommunication->sendMessage(_message);
 }
 //
 // Plus one mm push button Needle -> Control page - 4
@@ -612,7 +744,7 @@ void MainWindow::on_MinusOnemmPushButton_NeedleInjection_clicked()
 void MainWindow::on_PlusOnemlPushButton_SyringeInjection_clicked()
 {
     int number = ui->NewSetPositionSpinBox_SyringeInjection->value();
-    number += 1; // TODO chceck how much is 1 ml
+    number += MM_TO_ML;
     ui->NewSetPositionSpinBox_SyringeInjection->setValue(number);
     QByteArray _message;
     _message.append('S');
@@ -639,7 +771,7 @@ void MainWindow::on_PlusOnemlPushButton_SyringeInjection_clicked()
 void MainWindow::on_MinusOnemlPushButton_SyringeInjection_clicked()
 {
     int number = ui->NewSetPositionSpinBox_SyringeInjection->value();
-    number -= 1; // TODO chceck how much is 1 ml
+    number -= MM_TO_ML;
     ui->NewSetPositionSpinBox_SyringeInjection->setValue(number);
     QByteArray _message;
     _message.append('S');
@@ -681,6 +813,9 @@ void MainWindow::on_stopMotorsPushButton_Injection_clicked()
         ui->stopMotorsPushButton_Injection->setStyleSheet("QPushButton { background-color : rgb(60,179,113); }");
         ui->stopMotorsPushButton_Injection->setText("START");
         /////////////
+        ui->stopMotorsPushButton_Suction->setStyleSheet("QPushButton { background-color : rgb(60,179,113); }");
+        ui->stopMotorsPushButton_Suction->setText("START");
+        /////////////
         ui->label_21->setText("START the motors:");
         ui->label_47->setText("START the motors:");
     }else{
@@ -692,8 +827,326 @@ void MainWindow::on_stopMotorsPushButton_Injection_clicked()
         ui->stopMotorsPushButton_Injection->setStyleSheet("QPushButton { background-color : rgb(220,20,60); }");
         ui->stopMotorsPushButton_Injection->setText("STOP");
         /////////////
+        ui->stopMotorsPushButton_Suction->setStyleSheet("QPushButton { background-color : rgb(220,20,60); }");
+        ui->stopMotorsPushButton_Suction->setText("STOP");
+        /////////////
         ui->label_47->setText("STOP the motors:");
         ui->label_21->setText("STOP the motors:");
     }
+}
+//
+// Injection button - Choose type page - 3
+//
+void MainWindow::on_InjectionButton_clicked()
+{
+    ui->mainStackedWidget->setCurrentIndex(4);
+    statusBar()->showMessage("Injection.");
+}
+//
+// Inject button - Injection page - 4
+//
+void MainWindow::on_InjectPushButton_Injection_clicked()
+{
+    int number_mm = ui->MililitersToInjectSpinBox_Injection->value() * MM_TO_ML;
+    int number = this->m_MCU_Data.syringe_set_position.toInt() - number_mm;
+    QByteArray _message;
+    _message.append('S');
+    QString _number = QString::number(number);
+    switch (_number.size()) {
+    case 1:
+        _message.append('0');
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    case 2:
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    default:
+        _message.append(_number.toStdString());
+        break;
+    }
+    ui->NewSetPositionSpinBox_SyringeInjection->setValue(number);
+    this->m_mcuCommunication->sendMessage(_message);
+}
+//
+// Suction push button - Choose surgery type page - 3
+//
+void MainWindow::on_SuctionButton_clicked()
+{
+    ui->mainStackedWidget->setCurrentIndex(5);
+    statusBar()->showMessage("Suction.");
+}
+//
+// Stop push button - Suction page - 5
+//
+void MainWindow::on_stopMotorsPushButton_Suction_clicked()
+{
+    if( this->m_isMCUWorking){
+        this->m_mcuCommunication->sendMessage("EEEE");
+        this->m_isMCUWorking = false;
+        ui->stopMotorsPushButton->setStyleSheet("QPushButton { background-color : rgb(60,179,113); }");
+        ui->stopMotorsPushButton->setText("START");
+        /////////////
+        ui->stopMotorsPushButton_Injection->setStyleSheet("QPushButton { background-color : rgb(60,179,113); }");
+        ui->stopMotorsPushButton_Injection->setText("START");
+        /////////////
+        ui->stopMotorsPushButton_Suction->setStyleSheet("QPushButton { background-color : rgb(60,179,113); }");
+        ui->stopMotorsPushButton_Suction->setText("START");
+        /////////////
+        ui->label_21->setText("START the motors:");
+        ui->label_47->setText("START the motors:");
+    }else{
+        this->m_mcuCommunication->sendMessage("OOOO");
+        this->m_isMCUWorking = true;
+        ui->stopMotorsPushButton->setStyleSheet("QPushButton { background-color : rgb(220,20,60); }");
+        ui->stopMotorsPushButton->setText("STOP");
+        /////////////
+        ui->stopMotorsPushButton_Injection->setStyleSheet("QPushButton { background-color : rgb(220,20,60); }");
+        ui->stopMotorsPushButton_Injection->setText("STOP");
+        /////////////
+        ui->stopMotorsPushButton_Suction->setStyleSheet("QPushButton { background-color : rgb(220,20,60); }");
+        ui->stopMotorsPushButton_Suction->setText("STOP");
+        /////////////
+        ui->label_47->setText("STOP the motors:");
+        ui->label_21->setText("STOP the motors:");
+    }
+}
+//
+// Data page push button - Suction page - 5
+//
+void MainWindow::on_DataPagePushButton_Suction_clicked()
+{
+    ui->mainStackedWidget->setCurrentIndex(2);
+    statusBar()->showMessage("Data page.");
+}
+//
+// Home position needle push button - Suction page - 5
+//
+void MainWindow::on_HomePositionPushButton_NeedleSuction_clicked()
+{
+    ui->NewSetPositionSpinBox_Suction->setValue(this->m_HomePosition_Needle_Suction);
+    QByteArray _message;
+    _message.append('N');
+    QString _number = QString::number(this->m_HomePosition_Needle_Suction);
+    switch (_number.size()) {
+    case 1:
+        _message.append('0');
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    case 2:
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    default:
+        _message.append(_number.toStdString());
+        break;
+    }
+    this->m_mcuCommunication->sendMessage(_message);
+}
+//
+// Plus one mm needle - Suction page - 5
+//
+void MainWindow::on_PlusOnemmPushButton_NeedleSuction_clicked()
+{
+    int number = ui->NewSetPositionSpinBox_Suction->value();
+    number += 1;
+    ui->NewSetPositionSpinBox_Suction->setValue(number);
+    QByteArray _message;
+    _message.append('N');
+    QString _number = QString::number(number);
+    switch (_number.size()) {
+    case 1:
+        _message.append('0');
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    case 2:
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    default:
+        _message.append(_number.toStdString());
+        break;
+    }
+    this->m_mcuCommunication->sendMessage(_message);
+}
+//
+// Plus one mm needle - Suction page - 5
+//
+void MainWindow::on_MinusOnemmPushButton_NeedleSuction_clicked()
+{
+    int number = ui->NewSetPositionSpinBox_Suction->value();
+    number -= 1;
+    ui->NewSetPositionSpinBox_Suction->setValue(number);
+    QByteArray _message;
+    _message.append('N');
+    QString _number = QString::number(number);
+    switch (_number.size()) {
+    case 1:
+        _message.append('0');
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    case 2:
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    default:
+        _message.append(_number.toStdString());
+        break;
+    }
+    this->m_mcuCommunication->sendMessage(_message);
+}
+//
+// Send to MCU needle push button - Suction page - 5
+//
+void MainWindow::on_SendToMCUPushButton_NeedleSuction_clicked()
+{
+    QByteArray _message;
+    _message.append('N');
+    QString _number = ui->NewSetPositionSpinBox_Suction->text();
+    switch (_number.size()) {
+    case 1:
+        _message.append('0');
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    case 2:
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    default:
+        _message.append(_number.toStdString());
+        break;
+    }
+    this->m_mcuCommunication->sendMessage(_message);
+}
+//
+// Home position syringe push button - Suction page - 5
+//
+void MainWindow::on_HomePositionPushButton_SyringeSuction_clicked()
+{
+    ui->NewSetPositionSpinBox_SyringeSuction->setValue(this->m_HomePosition_Syringe_Suction);
+    QByteArray _message;
+    _message.append('S');
+    QString _number = QString::number(this->m_HomePosition_Syringe_Suction);
+    switch (_number.size()) {
+    case 1:
+        _message.append('0');
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    case 2:
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    default:
+        _message.append(_number.toStdString());
+        break;
+    }
+    this->m_mcuCommunication->sendMessage(_message);
+}
+
+
+void MainWindow::on_PlusOnemlPushButton_SyringeSuction_clicked()
+{
+    int number = ui->NewSetPositionSpinBox_SyringeSuction->value();
+    number += MM_TO_ML;
+    ui->NewSetPositionSpinBox_SyringeSuction->setValue(number);
+    QByteArray _message;
+    _message.append('S');
+    QString _number = QString::number(number);
+    switch (_number.size()) {
+    case 1:
+        _message.append('0');
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    case 2:
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    default:
+        _message.append(_number.toStdString());
+        break;
+    }
+    this->m_mcuCommunication->sendMessage(_message);
+}
+
+
+void MainWindow::on_MinusOnemlPushButton_SyringeSuction_clicked()
+{
+    int number = ui->NewSetPositionSpinBox_SyringeSuction->value();
+    number -= MM_TO_ML;
+    ui->NewSetPositionSpinBox_SyringeSuction->setValue(number);
+    QByteArray _message;
+    _message.append('S');
+    QString _number = QString::number(number);
+    switch (_number.size()) {
+    case 1:
+        _message.append('0');
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    case 2:
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    default:
+        _message.append(_number.toStdString());
+        break;
+    }
+    this->m_mcuCommunication->sendMessage(_message);
+}
+
+
+void MainWindow::on_SendToMCUPushButton_SyringeSuction_clicked()
+{
+    QByteArray _message;
+    _message.append('S');
+    QString _number = ui->NewSetPositionSpinBox_SyringeSuction->text();
+    switch (_number.size()) {
+    case 1:
+        _message.append('0');
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    case 2:
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    default:
+        _message.append(_number.toStdString());
+        break;
+    }
+    this->m_mcuCommunication->sendMessage(_message);
+}
+
+
+void MainWindow::on_SuckPushButton_Suction_clicked()
+{
+    int number_mm = ui->MililitersToSuckSpinBox_Suction->value() * MM_TO_ML;
+    int number = this->m_MCU_Data.syringe_set_position.toInt() + number_mm;
+    QByteArray _message;
+    _message.append('S');
+    QString _number = QString::number(number);
+    switch (_number.size()) {
+    case 1:
+        _message.append('0');
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    case 2:
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    default:
+        _message.append(_number.toStdString());
+        break;
+    }
+    ui->NewSetPositionSpinBox_SyringeSuction->setValue(number);
+    this->m_mcuCommunication->sendMessage(_message);
 }
 
