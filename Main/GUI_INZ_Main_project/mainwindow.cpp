@@ -102,16 +102,19 @@ void MainWindow::on_savePathLogPushButton_clicked()
         ui->DataActionPage->setEnabled(true);
         ui->controlActionPage->setEnabled(true);
         ui->dataPushButton->setEnabled(true);
+        ui->SettingsActionPage->setEnabled(true);
     }else if(this->m_isPathChosen && !this->m_isConnected){
         ui->statusToDolabel->setText("Connect to the MCU.");
         ui->DataActionPage->setEnabled(false);
         ui->controlActionPage->setEnabled(false);
+        ui->SettingsActionPage->setEnabled(false);
         ui->dataPushButton->setEnabled(false);
     }else if(! this->m_isPathChosen && this->m_isConnected){
         ui->statusToDolabel->setText("Select the path.");
         ui->DataActionPage->setEnabled(false);
         ui->controlActionPage->setEnabled(false);
         ui->dataPushButton->setEnabled(false);
+        ui->SettingsActionPage->setEnabled(false);
     }
 
 }
@@ -218,6 +221,7 @@ void MainWindow::on_pushButton_4_clicked()
                 ui->DataActionPage->setEnabled(true);
                 ui->controlActionPage->setEnabled(true);
                 ui->dataPushButton->setEnabled(true);
+                ui->SettingsActionPage->setEnabled(true);
                 this->m_LOGSystem->writeLOG("-","-","-","-","Connected to the MCU");
             }else if(this->m_isPathChosen && !this->m_isConnected){
                 ui->statusToDolabel->setText("Connect to the MCU.");
@@ -245,21 +249,26 @@ void MainWindow::on_pushButton_4_clicked()
             ui->DataActionPage->setEnabled(true);
             ui->controlActionPage->setEnabled(true);
             ui->dataPushButton->setEnabled(true);
+            ui->SettingsActionPage->setEnabled(true);
         }else if(this->m_isPathChosen && !this->m_isConnected){
             ui->statusToDolabel->setText("Connect to the MCU.");
             ui->DataActionPage->setEnabled(false);
             ui->controlActionPage->setEnabled(false);
             ui->dataPushButton->setEnabled(false);
+            ui->SettingsActionPage->setEnabled(false);
             this->m_LOGSystem->writeLOG("-","-","-","-","Disconnected from the MCU");
         }else if(! this->m_isPathChosen && this->m_isConnected){
             ui->statusToDolabel->setText("Select the path.");
             ui->DataActionPage->setEnabled(false);
             ui->controlActionPage->setEnabled(false);
             ui->dataPushButton->setEnabled(false);
+            ui->SettingsActionPage->setEnabled(false);
         }else{
             ui->statusToDolabel->setText("Select the path and connect to the MCU.");
             ui->DataActionPage->setEnabled(false);
             ui->dataPushButton->setEnabled(false);
+            ui->SettingsActionPage->setEnabled(false);
+            ui->controlActionPage->setEnabled(false);
         }
     }
 }
@@ -1148,5 +1157,12 @@ void MainWindow::on_SuckPushButton_Suction_clicked()
     }
     ui->NewSetPositionSpinBox_SyringeSuction->setValue(number);
     this->m_mcuCommunication->sendMessage(_message);
+}
+
+
+void MainWindow::on_SettingsActionPage_triggered()
+{
+    ui->mainStackedWidget->setCurrentIndex(6);
+    statusBar()->showMessage("Settings page");
 }
 

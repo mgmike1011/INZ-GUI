@@ -10,6 +10,7 @@
         <file>res/007-information.png</file>
         <file>res/008-licensing.png</file>
         <file>res/video-play-button.png</file>
+        <file>res/settings.png</file>
     </qresource>
     <qresource prefix="/Pictures">
         <file>res/medical.png</file>

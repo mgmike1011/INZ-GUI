@@ -18,7 +18,7 @@
 //
 // Defines
 //
-#define MM_TO_ML 2 // 2mm = 1ml TODO check
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -108,6 +108,8 @@ private slots:
 
     void on_SuckPushButton_Suction_clicked();
 
+    void on_SettingsActionPage_triggered();
+
 private:
     // Main window UI form
     Ui::MainWindow *ui;
@@ -125,6 +127,8 @@ private:
     MCUCommunication *m_mcuCommunication;
     // Licenses dialog system
     licensesDialog *m_licensesDialog;
+    //
+    int MM_TO_ML = 2; // 2mm = 1ml TODO check
     // Info from MCU
     struct
     {
