@@ -28,6 +28,14 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
     ui->SyringeFillProgressBar_Injection->setMaximum(this->m_HomePosition_Syringe_Injection / MM_TO_ML); // Max ml in syringe
     ui->SyringeFillProgressBar_Suction->setMinimum(0);
     ui->SyringeFillProgressBar_Suction->setMaximum(this->m_HomePosition_Syringe_Suction / MM_TO_ML); // Max ml in syringe
+
+    ui->mm_to_ml_spinBox->setValue(MM_TO_ML);
+    ui->InjectionNeedleHomePositionspinBox->setValue(this->m_HomePosition_Needle_Injection);
+    ui->InjectionSyringeHomePositionSpinBox->setValue( this->m_HomePosition_Syringe_Injection);
+    ui->SuctionNeedleHomePositionspinBox->setValue(this->m_HomePosition_Needle_Suction);
+    ui->SuctionSyringeHomePositionspinBox->setValue(this->m_HomePosition_Syringe_Suction);
+    ui->NeedleSpeedSpinBox->setValue(100); // TODO check
+    ui->SyringeSpeedSpinBox->setValue(100); // TODO check
 }
 //
 // Main destructor
@@ -347,7 +355,7 @@ void MainWindow::messageReceivedJSONData_slot(const double &NP, const double &SP
         this->m_MCU_Data.message = tr("Status: MOTOR STOP");
         break;
     default:
-        this->m_MCU_Data.message = tr("Status: OK");
+        this->m_MCU_Data.message = tr("Bad status");
         break;
     }
     //
@@ -516,7 +524,7 @@ void MainWindow::on_mainStackedWidget_currentChanged(int arg1)
 void MainWindow::on_stopMotorsPushButton_clicked()
 {
     if( this->m_isMCUWorking){
-        this->m_mcuCommunication->sendMessage("EEEE");
+        this->m_mcuCommunication->sendMessage("MMMM");
         this->m_isMCUWorking = false;
         ui->stopMotorsPushButton->setStyleSheet("QPushButton { background-color : rgb(60,179,113); }");
         ui->stopMotorsPushButton->setText("START");
@@ -814,7 +822,7 @@ void MainWindow::on_DataPagePushButton_Injection_clicked()
 void MainWindow::on_stopMotorsPushButton_Injection_clicked()
 {
     if( this->m_isMCUWorking){
-        this->m_mcuCommunication->sendMessage("EEEE");
+        this->m_mcuCommunication->sendMessage("MMMM");
         this->m_isMCUWorking = false;
         ui->stopMotorsPushButton->setStyleSheet("QPushButton { background-color : rgb(60,179,113); }");
         ui->stopMotorsPushButton->setText("START");
@@ -892,7 +900,7 @@ void MainWindow::on_SuctionButton_clicked()
 void MainWindow::on_stopMotorsPushButton_Suction_clicked()
 {
     if( this->m_isMCUWorking){
-        this->m_mcuCommunication->sendMessage("EEEE");
+        this->m_mcuCommunication->sendMessage("MMMM");
         this->m_isMCUWorking = false;
         ui->stopMotorsPushButton->setStyleSheet("QPushButton { background-color : rgb(60,179,113); }");
         ui->stopMotorsPushButton->setText("START");
@@ -1164,5 +1172,129 @@ void MainWindow::on_SettingsActionPage_triggered()
 {
     ui->mainStackedWidget->setCurrentIndex(6);
     statusBar()->showMessage("Settings page");
+}
+//
+// MM to ML ratio spin box - Settings - page 6
+//
+void MainWindow::on_mm_to_ml_spinBox_valueChanged(int arg1)
+{
+    MM_TO_ML = arg1;
+}
+//
+// Injection Needle home position spin box - Settings - page 6
+//
+void MainWindow::on_InjectionNeedleHomePositionspinBox_valueChanged(int arg1)
+{
+    this->m_HomePosition_Needle_Injection = arg1;
+}
+//
+// Injection Syringe home position spin box - Settings - page 6
+//
+void MainWindow::on_InjectionSyringeHomePositionSpinBox_valueChanged(int arg1)
+{
+    this->m_HomePosition_Syringe_Injection = arg1;
+}
+//
+// Suction Needle home position spin box - Settings - page 6
+//
+void MainWindow::on_SuctionNeedleHomePositionspinBox_valueChanged(int arg1)
+{
+    this->m_HomePosition_Needle_Suction = arg1;
+}
+//
+// Suction Syringe home position spin box - Settings - page 6
+//
+void MainWindow::on_SuctionSyringeHomePositionspinBox_valueChanged(int arg1)
+{
+    this->m_HomePosition_Syringe_Suction = arg1;
+}
+//
+// Set Current home position injection needle push button - Settings - page 6
+//
+void MainWindow::on_SetCurrentInjectionNeedleHomePositionPushButton_clicked()
+{
+    this->m_HomePosition_Needle_Injection = this->m_MCU_Data.needle_position.toUInt();
+    ui->InjectionNeedleHomePositionspinBox->setValue(this->m_HomePosition_Needle_Injection);
+}
+//
+// Set Current home position injection syringe push button - Settings - page 6
+//
+void MainWindow::on_SetCurrentInjectionSyringeHomePositionPushButton_clicked()
+{
+    this->m_HomePosition_Syringe_Injection = this->m_MCU_Data.syringe_position.toUInt();
+    ui->InjectionSyringeHomePositionSpinBox->setValue(this->m_HomePosition_Syringe_Injection);
+}
+//
+// Set Current home position suction needle push button - Settings - page 6
+//
+void MainWindow::on_SetCurrentSuctionNeedleHomePositionPushButton_clicked()
+{
+    this->m_HomePosition_Needle_Suction = this->m_MCU_Data.needle_position.toUInt();
+    ui->SuctionNeedleHomePositionspinBox->setValue(this->m_HomePosition_Needle_Suction);
+}
+//
+// Set Current home position suction syringe push button - Settings - page 6
+//
+void MainWindow::on_SetCurrentSuctioSyringeHomePositionPushButton_clicked()
+{
+    this->m_HomePosition_Syringe_Suction = this->m_MCU_Data.syringe_position.toUInt();
+    ui->SuctionSyringeHomePositionspinBox->setValue(this->m_HomePosition_Syringe_Suction);
+}
+//
+// Send to MCU Needle speed push button - Settings - page 6
+//
+void MainWindow::on_SendToMCUNeedleSpeedPushButton_clicked()
+{
+    int number = ui->NeedleSpeedSpinBox->value();
+    QByteArray _message;
+    _message.append('Q');
+    QString _number = QString::number(number);
+    switch (_number.size()) {
+    case 1:
+        _message.append('0');
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    case 2:
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    default:
+        _message.append(_number.toStdString());
+        break;
+    }
+    this->m_mcuCommunication->sendMessage(_message);
+}
+
+
+void MainWindow::on_SendToMCUSyringeSpeedPushButton_clicked()
+{
+    int number = ui->SyringeSpeedSpinBox->value();
+    QByteArray _message;
+    _message.append('W');
+    QString _number = QString::number(number);
+    switch (_number.size()) {
+    case 1:
+        _message.append('0');
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    case 2:
+        _message.append('0');
+        _message.append(_number.toStdString());
+        break;
+    default:
+        _message.append(_number.toStdString());
+        break;
+    }
+    this->m_mcuCommunication->sendMessage(_message);
+}
+//
+// Info/about dialog
+//
+void MainWindow::on_actionAbout_triggered()
+{
+    this->m_infoDialog = new InfoDialog(this);
+    this->m_infoDialog->show();
 }
 

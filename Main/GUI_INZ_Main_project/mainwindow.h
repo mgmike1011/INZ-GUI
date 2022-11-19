@@ -6,6 +6,7 @@
 #include <QApplication>
 #include <QFileDialog>
 #include <QMessageBox>
+#include "infodialog.h"
 #include "logsystem.h"
 #include <QSerialPortInfo>
 #include <QSerialPort>
@@ -110,6 +111,31 @@ private slots:
 
     void on_SettingsActionPage_triggered();
 
+    void on_mm_to_ml_spinBox_valueChanged(int arg1);
+
+    void on_InjectionNeedleHomePositionspinBox_valueChanged(int arg1);
+
+    void on_InjectionSyringeHomePositionSpinBox_valueChanged(int arg1);
+
+    void on_SuctionNeedleHomePositionspinBox_valueChanged(int arg1);
+
+    void on_SuctionSyringeHomePositionspinBox_valueChanged(int arg1);
+
+    void on_SetCurrentInjectionNeedleHomePositionPushButton_clicked();
+
+    void on_SetCurrentInjectionSyringeHomePositionPushButton_clicked();
+
+    void on_SetCurrentSuctionNeedleHomePositionPushButton_clicked();
+
+    void on_SetCurrentSuctioSyringeHomePositionPushButton_clicked();
+
+
+    void on_SendToMCUNeedleSpeedPushButton_clicked();
+
+    void on_SendToMCUSyringeSpeedPushButton_clicked();
+
+    void on_actionAbout_triggered();
+
 private:
     // Main window UI form
     Ui::MainWindow *ui;
@@ -127,7 +153,9 @@ private:
     MCUCommunication *m_mcuCommunication;
     // Licenses dialog system
     licensesDialog *m_licensesDialog;
-    //
+    // Info dialog
+    InfoDialog *m_infoDialog;
+    // Ratio
     int MM_TO_ML = 2; // 2mm = 1ml TODO check
     // Info from MCU
     struct

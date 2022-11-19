@@ -28,6 +28,9 @@ set(PROJECT_SOURCES
         licensesdialog.h
         licensesdialog.cpp
         licensesdialog.ui
+        infodialog.h
+        infodialog.cpp
+        infodialog.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
